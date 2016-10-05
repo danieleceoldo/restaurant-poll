@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+
+    <head>
+        <title>
+            {{ ballot.date }}
+        </title>
+        <meta http-equiv="refresh" content="60">
+        <style>
+            div.frame {
+                clear: both;
+                border: 1px solid black;
+                overflow: hidden;
+                margin-bottom: -1px;
+            }
+            header {
+                border: 1px solid black;
+                text-align: center;
+                margin-bottom: -1px;
+            }
+            nav.left {
+                float: left;
+                width: 15%;
+                padding-left: 1em;
+            }
+            nav.right {
+                float: right;
+                width: 15%;
+                text-align: right;
+                padding-right: 1em;
+            }
+            nav.center {
+                width: 60%;
+                text-align: center;
+                margin: 0 auto;
+            }
+            nav.aside {
+                float: left;
+                border-left: 1px solid black;
+                width: 20%;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            section {
+                clear: both;
+                float: left;
+                width: 70%;
+                border-right: 1px solid black;
+                margin: -1px;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            footer.left {
+                clear: both;
+                float: left;
+                width: 45%;
+                padding-left: 1em;
+            }
+            footer.right {
+                float: right;
+                width: 45%;
+                text-align: right;
+                padding-right: 1em;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                {{ ballot.date }}
+            </h1>
+        </header>
+
+        <div class="frame">
+            <nav class="left">
+                <p>&nbsp;</p>
+            </nav>
+            <nav class="right">
+                <p>&nbsp;</p>
+            </nav>
+            <nav class="center">
+                <p>Current Local Time: {% now "H:i" %}</p>
+            </nav>
+        </div>
+
+        <div class="frame">
+            <section>
+                <p>
+                Poll opens at {{ poll_open_time|time:"H:i" }} 
+                and closes at {{ poll_close_time|time:"H:i" }} local time.
+                </p>
+                <ul>
+                {% for restaurant in ballot.restaurant_set.all %}
+                    <li>{{ restaurant.name }}</li>
+                {% endfor %}
+                </ul>
+            </section>
+            <nav class="aside">
+                <p><a href="{% url 'polls:statistics' %}">
+                Statistics</a></p>
+                <p><a href="{% url 'polls:vote_history_index' %}">
+                Vote History</a></p>
+                <p><a href="{% url 'polls:feedback_history' %}">
+                Feedback History</a></p>
+            </nav>
+        </div>
+
+        <div class="frame">
+            <footer class="left">
+                <p>&nbsp;</p>
+            </footer>
+            <footer class="right">
+                <p>&nbsp;</p>
+            </footer>
+        </div>
+    </body>
+
+</html>

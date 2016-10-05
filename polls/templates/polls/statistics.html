@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            Statistics
+        </title>
+
+        <style>
+            div.frame {
+                clear: both;
+                border: 1px solid black;
+                overflow: hidden;
+                margin-bottom: -1px;
+            }
+            header {
+                border: 1px solid black;
+                text-align: center;
+                margin-bottom: -1px;
+            }
+            nav.left {
+                float: left;
+                width: 15%;
+                padding-left: 1em;
+            }
+            nav.right {
+                float: right;
+                width: 15%;
+                text-align: right;
+                padding-right: 1em;
+            }
+            nav.center {
+                width: 60%;
+                text-align: center;
+                margin: 0 auto;
+            }
+            nav.aside {
+                float: left;
+                border-left: 1px solid black;
+                width: 20%;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            section {
+                clear: both;
+                float: left;
+                width: 70%;
+                border-right: 1px solid black;
+                margin: -1px;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            footer.left {
+                clear: both;
+                float: left;
+                width: 45%;
+                padding-left: 1em;
+            }
+            footer.right {
+                float: right;
+                width: 45%;
+                text-align: right;
+                padding-right: 1em;
+            }
+            table, th, td {
+                border-collapse: collapse;
+                margin-bottom: -1px;
+                padding-left: 1em;
+                text-align: center;
+            }
+            tr:nth-child(even) {
+                background-color: #dddddd;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                Statistics
+            </h1>
+        </header>
+
+        <div class="frame">
+            <nav class="left">
+                <p><a href="{% url 'polls:index' %}">Back</a></p>
+            </nav>
+            <nav class="right">
+                <p>&nbsp;</p>
+            </nav>
+        {% if stat %}
+            <nav class="center">
+                <p>from {{ from_ballot_date }} to {{ to_ballot_date }}</p>
+            </nav>
+        {% endif %}
+        </div>
+
+        <div class="frame">
+            <section style="padding: 1em;
+                            width: 100%;
+                            overflow: hidden;
+                            border: none;">
+
+            {% if stat %}
+
+                <h2>General Statistics</h2>
+
+                <table>
+                    <tr>
+                        <th style="text-align: left;">Restaurant</th>
+                        <th>Victories</th>
+                        <th>Parity</th>
+                        <th>Votes</th>
+                        <th>Mark</th>
+                        <th>Feedback Number</th>
+                    </tr>
+                {% for x in stat %}
+                    <tr>
+                        <td style="text-align: left;">{{ x.name }}</th>
+                        <td>{{ x.win }}</th>
+                        <td>{{ x.parity }}</th>
+                        <td>{{ x.vote }}</th>
+                        <td>{{ x.mark }}</th>
+                        <td>{{ x.feedback_num }}</th>
+                    </tr>
+                {% endfor %}
+                </table>
+
+
+                <h2>Victory Cause</h2>
+
+                <table style="width:95%;">
+                    <tr>
+                        <th style="text-align: left;">Restaurant</th>
+                        <th>Majority Vote</th>
+                        <th>Best Feedback</th>
+                        <th>Most Rated</th>
+                        <th>Random Same Feedback</th>
+                        <th>Random No Feedback</th>
+                    </tr>
+                {% for x in stat %}
+                    <tr>
+                        <td style="text-align: left;">{{ x.name }}</th>
+                        <td>{{ x.majority }}</th>
+                        <td>{{ x.feedback }}</th>
+                        <td>{{ x.most_rated }}</th>
+                        <td>{{ x.rand_feedback }}</th>
+                        <td>{{ x.rand_no_feedback }}</th>
+                    </tr>
+                {% endfor %}
+                </table>
+            {% else %}
+                <p>No statistics are available.</p>
+            {% endif %}
+            </section>
+        </div>
+
+        <div class="frame">
+            <footer class="left">
+                <p><a href="{% url 'polls:index' %}">Back</a></p>
+            </footer>
+            <footer class="right">
+                <p>&nbsp;</p>
+            </footer>
+        </div>
+    </body>
+</html>

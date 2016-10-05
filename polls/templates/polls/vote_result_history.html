@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            {{ ballot.date }}
+        </title>
+        <style>
+            div.frame {
+                clear: both;
+                border: 1px solid black;
+                overflow: hidden;
+                margin-bottom: -1px;
+            }
+            header {
+                border: 1px solid black;
+                text-align: center;
+                margin-bottom: -1px;
+            }
+            nav.left {
+                float: left;
+                width: 15%;
+                padding-left: 1em;
+            }
+            nav.right {
+                float: right;
+                width: 15%;
+                text-align: right;
+                padding-right: 1em;
+            }
+            nav.center {
+                width: 60%;
+                text-align: center;
+                margin: 0 auto;
+            }
+            nav.aside {
+                float: left;
+                border-left: 1px solid black;
+                width: 20%;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            section {
+                clear: both;
+                float: left;
+                width: 70%;
+                border-right: 1px solid black;
+                margin: -1px;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            footer.left {
+                clear: both;
+                float: left;
+                width: 45%;
+                padding-left: 1em;
+            }
+            footer.right {
+                float: right;
+                width: 45%;
+                text-align: right;
+                padding-right: 1em;
+            }
+            table.result {
+                border-collapse: collapse;
+            }
+            tr.result:nth-child(even) {
+            }
+            tr.result {
+                border-bottom: 1px solid black;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                {{ ballot.date }}
+            </h1>
+        </header>
+
+        <div class="frame">
+            <nav class="left">
+                <p><a href="{% url 'polls:vote_history_index' %}">Back</a></p>
+            </nav>
+            <nav class="right">
+                <p>&nbsp;</p>
+            </nav>
+        </div>
+
+        <div class="frame">
+            <section style="border:none">
+
+                <h2>The Winner is: {{ ballot.winner }}</h2>
+
+                <h3>Total votes: {{ total_votes }}</h3>
+
+                <table class="result">
+                {% for restaurant in ballot.restaurant_set.all %}
+                    <tr class="result">
+                        <td style="padding-right:5em">
+                        {{ restaurant.name }}</td>
+                        <td style="padding-right:1em">
+                        {{ restaurant.votes }}</td>
+                        <td>vote{{ restaurant.votes|pluralize }}</td>
+                    </tr>
+                {% endfor %}
+                </table>
+
+                <br>
+                <p>Victory cause: <strong>{{ ballot.win_cause }}</strong></p>
+                <br>
+            </section>
+        </div>
+
+        <div class="frame">
+            <footer class="left">
+                <p><a href="{% url 'polls:vote_history_index' %}">Back</a></p>
+            </footer>
+            <footer class="right">
+                <p>&nbsp;</p>
+            </footer>
+        </div>
+    </body>
+</html>

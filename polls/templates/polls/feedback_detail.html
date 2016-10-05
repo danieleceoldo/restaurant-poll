@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>
+            {{ ballot.date }}
+        </title>
+        <style>
+            div.frame {
+                clear: both;
+                border: 1px solid black;
+                overflow: hidden;
+                margin-bottom: -1px;
+            }
+            header {
+                border: 1px solid black;
+                text-align: center;
+                margin-bottom: -1px;
+            }
+            nav.left {
+                float: left;
+                width: 15%;
+                padding-left: 1em;
+            }
+            nav.right {
+                float: right;
+                width: 15%;
+                text-align: right;
+                padding-right: 1em;
+            }
+            nav.center {
+                width: 60%;
+                text-align: center;
+                margin: 0 auto;
+            }
+            nav.aside {
+                float: left;
+                border-left: 1px solid black;
+                width: 20%;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            section {
+                clear: both;
+                float: left;
+                width: 70%;
+                border-right: 1px solid black;
+                margin: -1px;
+                padding-left: 1em;
+                overflow: auto;
+            }
+            footer.left {
+                clear: both;
+                float: left;
+                width: 45%;
+                padding-left: 1em;
+            }
+            footer.right {
+                float: right;
+                width: 45%;
+                text-align: right;
+                padding-right: 1em;
+            }
+        </style>
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                {{ ballot.date }}
+            </h1>
+        </header>
+
+        <div class="frame">
+            <nav class="left">
+                <p><a href="{% url 'polls:index' %}">Back</a></p>
+            </nav>
+            <nav class="right">
+                <p>&nbsp;</p>
+            </nav>
+            <nav class="center">
+            </nav>
+        </div>
+
+        <div class="frame">
+            <section style="border: none; padding: 1em; width: 100%;">
+                {% if error_message %}
+                    <p><strong>{{ error_message }}</strong></p>
+                {% endif %}
+
+            <form action="{% url 'polls:feedback' ballot.id %}" method="post">
+                {% csrf_token %}
+                {% for mark in feedback_marks %}
+                    <input type="radio" name="mark" id="mark{{ forloop.counter }}" value="{{ mark.value }}" required/>
+                    <label for="mark{{ forloop.counter }}">{{ mark.phrase }}</label><br />
+                {% endfor %}
+                <p>Please leave a comment (optional):</p>
+                <textarea rows="4" cols="100" name="comment"></textarea>
+                <br><br>
+                <input type="submit" value="Submit" />
+                <br>
+            </form>
+            </section>
+        </div>
+
+        <div class="frame">
+            <footer class="left">
+                <p><a href="{% url 'polls:index' %}">Back</a></p>
+            </footer>
+            <footer class="right">
+                <p>&nbsp;</p>
+            </footer>
+        </div>
+    </body>
+</html>
