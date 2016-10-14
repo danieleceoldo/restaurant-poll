@@ -72,7 +72,7 @@
                 <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
             </nav>
             <nav class="bar_right">
-                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Prev.</a></p>
+                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Next</a></p>
             </nav>
             <nav class="bar_center">
                 <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
@@ -109,7 +109,7 @@
                 <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
             </footer>
             <footer class="bar_right">
-                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Prev.</a></p>
+                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Next</a></p>
             </footer>
             <footer class="bar_center">
                 <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
