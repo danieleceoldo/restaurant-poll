@@ -16,18 +16,19 @@
                 text-align: center;
                 margin-bottom: -1px;
             }
-            nav.left {
+            .bar_left {
+                clear: both;
                 float: left;
                 width: 15%;
                 padding-left: 1em;
             }
-            nav.right {
+            .bar_right {
                 float: right;
                 width: 15%;
                 text-align: right;
                 padding-right: 1em;
             }
-            nav.center {
+            .bar_center {
                 width: 60%;
                 text-align: center;
                 margin: 0 auto;
@@ -37,7 +38,7 @@
                 border-left: 1px solid black;
                 width: 20%;
                 padding-left: 1em;
-                overflow: auto;
+                overflow: hidden;
             }
             section {
                 clear: both;
@@ -47,18 +48,6 @@
                 margin: -1px;
                 padding-left: 1em;
                 overflow: auto;
-            }
-            footer.left {
-                clear: both;
-                float: left;
-                width: 45%;
-                padding-left: 1em;
-            }
-            footer.right {
-                float: right;
-                width: 45%;
-                text-align: right;
-                padding-right: 1em;
             }
             table.result {
                 border-collapse: collapse;
@@ -79,11 +68,14 @@
         </header>
 
         <div class="frame">
-            <nav class="left">
-                <p><a href="{% url 'polls:vote_history_index' %}">Back</a></p>
+            <nav class="bar_left">
+                <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
             </nav>
-            <nav class="right">
-                <p>&nbsp;</p>
+            <nav class="bar_right">
+                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Prev.</a></p>
+            </nav>
+            <nav class="bar_center">
+                <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
             </nav>
         </div>
 
@@ -113,11 +105,14 @@
         </div>
 
         <div class="frame">
-            <footer class="left">
-                <p><a href="{% url 'polls:vote_history_index' %}">Back</a></p>
+            <footer class="bar_left">
+                <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
             </footer>
-            <footer class="right">
-                <p>&nbsp;</p>
+            <footer class="bar_right">
+                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Prev.</a></p>
+            </footer>
+            <footer class="bar_center">
+                <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
             </footer>
         </div>
     </body>

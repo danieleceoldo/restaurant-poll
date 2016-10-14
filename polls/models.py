@@ -21,7 +21,7 @@ class Restaurant(models.Model):
 
 
 class Ranking(models.Model):
-    restaurant = models.CharField(max_length=30)
+    restaurant = models.CharField(max_length=30, default="")
 
     def __str__(self):
         return self.restaurant

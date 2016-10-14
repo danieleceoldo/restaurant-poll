@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>
-            {{ ballot.date }}
+            {% now "N d, o" %}
         </title>
         <meta http-equiv="refresh" content="60">
         <style>
@@ -17,18 +17,19 @@
                 text-align: center;
                 margin-bottom: -1px;
             }
-            nav.left {
+            .bar_left {
+                clear: both;
                 float: left;
                 width: 15%;
                 padding-left: 1em;
             }
-            nav.right {
+            .bar_right {
                 float: right;
                 width: 15%;
                 text-align: right;
                 padding-right: 1em;
             }
-            nav.center {
+            .bar_center {
                 width: 60%;
                 text-align: center;
                 margin: 0 auto;
@@ -46,38 +47,26 @@
                 width: 70%;
                 border-right: 1px solid black;
                 margin: -1px;
-                padding-left: 1em;
+                padding: 1em;
                 overflow: auto;
-            }
-            footer.left {
-                clear: both;
-                float: left;
-                width: 45%;
-                padding-left: 1em;
-            }
-            footer.right {
-                float: right;
-                width: 45%;
-                text-align: right;
-                padding-right: 1em;
             }
         </style>
     </head>
     <body>
         <header>
             <h1>
-                {{ ballot.date }}
+                {% now "N d, o" %}
             </h1>
         </header>
 
         <div class="frame">
-            <nav class="left">
+            <nav class="bar_left">
                 <p>&nbsp;</p>
             </nav>
-            <nav class="right">
+            <nav class="bar_right">
                 <p>&nbsp;</p>
             </nav>
-            <nav class="center">
+            <nav class="bar_center">
                 <p>
                    Current Local Time: {% now "H:i" %}
                 </p>
@@ -86,14 +75,11 @@
 
         <div class="frame">
             <section>
-                <p>
-                   Poll closes at {{ poll_close_time|time:"H:i" }} local time.
-                </p>
                 {% if error_message %}
                     <p><strong>{{ error_message }}</strong></p>
                 {% endif %}
 
-                <form action="{% url 'polls:vote' ballot.id %}" method="post">
+                <form action="{% url 'polls:vote' %}" method="post">
                 {% csrf_token %}
                 {% for restaurant in ballot.restaurant_set.all %}
                     <input type="radio" name="restaurant" id="restaurant{{ forloop.counter }}" value="{{ restaurant.id }}" />
@@ -102,9 +88,12 @@
                 <br>
                 <input type="submit" value="Vote" />
                 </form>
-                <br>
+                {% load static %}
+		<img src="{% static "polls/images/feedback_graph.png" %}" alt="feedback_graph" style="display: block; margin: 0 auto; margin-top: 20px;"/>
             </section>
             <nav class="aside">
+                <p><a href="{% url 'polls:voting' %}">
+                Turnout</a></p>
                 <p><a href="{% url 'polls:statistics' %}">
                 Statistics</a></p>
                 <p><a href="{% url 'polls:vote_history_index' %}">
@@ -115,11 +104,16 @@
         </div>
 
         <div class="frame">
-            <footer class="left">
+            <footer class="bar_left">
                 <p>&nbsp;</p>
             </footer>
-            <footer class="right">
+            <footer class="bar_right">
                 <p>&nbsp;</p>
+            </footer>
+            <footer class="bar_center">
+                <p><em>
+                Poll closes at {{ poll_close_time|time:"H:i" }} local time.
+                </em></p>
             </footer>
         </div>
     </body>

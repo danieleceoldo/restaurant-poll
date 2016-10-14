@@ -5,7 +5,7 @@ from polls.models import Ballot, Restaurant, Ranking
 import datetime
 import calendar
 
-starting_day = 20
+starting_day = 19
 starting_month = 9
 ending_month = 12
 year = 2016

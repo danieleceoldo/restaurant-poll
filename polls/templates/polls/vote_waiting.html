@@ -3,7 +3,7 @@
 
     <head>
         <title>
-            {{ ballot.date }}
+            {% now "N d, o" %}
         </title>
         <meta http-equiv="refresh" content="60">
         <style>
@@ -18,18 +18,19 @@
                 text-align: center;
                 margin-bottom: -1px;
             }
-            nav.left {
+            .bar_left {
+                clear: both;
                 float: left;
                 width: 15%;
                 padding-left: 1em;
             }
-            nav.right {
+            .bar_right {
                 float: right;
                 width: 15%;
                 text-align: right;
                 padding-right: 1em;
             }
-            nav.center {
+            .bar_center {
                 width: 60%;
                 text-align: center;
                 margin: 0 auto;
@@ -68,28 +69,24 @@
     <body>
         <header>
             <h1>
-                {{ ballot.date }}
+                {% now "N d, o" %}
             </h1>
         </header>
 
         <div class="frame">
-            <nav class="left">
+            <nav class="bar_left">
                 <p>&nbsp;</p>
             </nav>
-            <nav class="right">
+            <nav class="bar_right">
                 <p>&nbsp;</p>
             </nav>
-            <nav class="center">
+            <nav class="bar_center">
                 <p>Current Local Time: {% now "H:i" %}</p>
             </nav>
         </div>
 
         <div class="frame">
             <section>
-                <p>
-                Poll opens at {{ poll_open_time|time:"H:i" }} 
-                and closes at {{ poll_close_time|time:"H:i" }} local time.
-                </p>
                 <ul>
                 {% for restaurant in ballot.restaurant_set.all %}
                     <li>{{ restaurant.name }}</li>
@@ -107,11 +104,17 @@
         </div>
 
         <div class="frame">
-            <footer class="left">
+            <footer class="bar_left">
                 <p>&nbsp;</p>
             </footer>
-            <footer class="right">
+            <footer class="bar_right">
                 <p>&nbsp;</p>
+            </footer>
+            <footer class="bar_center">
+                <p><em>
+                Poll opens at {{ poll_open_time|time:"H:i" }} 
+                and closes at {{ poll_close_time|time:"H:i" }} local time.
+                </em></p>
             </footer>
         </div>
     </body>

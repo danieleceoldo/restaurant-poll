@@ -2,7 +2,7 @@
 <html>
     <head>
         <title>
-            {{ ballot.date }}
+            {% now "N d, o" %}
         </title>
         <meta http-equiv="refresh" content="15">
         <style>
@@ -17,18 +17,19 @@
                 text-align: center;
                 margin-bottom: -1px;
             }
-            nav.left {
+            .bar_left {
+                clear: both;
                 float: left;
                 width: 15%;
                 padding-left: 1em;
             }
-            nav.right {
+            .bar_right {
                 float: right;
                 width: 15%;
                 text-align: right;
                 padding-right: 1em;
             }
-            nav.center {
+            .bar_center {
                 width: 60%;
                 text-align: center;
                 margin: 0 auto;
@@ -38,7 +39,7 @@
                 border-left: 1px solid black;
                 width: 20%;
                 padding-left: 1em;
-                overflow: auto;
+                overflow: hidden;
             }
             section {
                 clear: both;
@@ -49,35 +50,23 @@
                 padding-left: 1em;
                 overflow: auto;
             }
-            footer.left {
-                clear: both;
-                float: left;
-                width: 45%;
-                padding-left: 1em;
-            }
-            footer.right {
-                float: right;
-                width: 45%;
-                text-align: right;
-                padding-right: 1em;
-            }
         </style>
     </head>
     <body>
         <header>
             <h1>
-                {{ ballot.date }}
+                {% now "N d, o" %}
             </h1>
         </header>
 
         <div class="frame">
-            <nav class="left">
+            <nav class="bar_left">
                 <p>&nbsp;</p>
             </nav>
-            <nav class="right">
+            <nav class="bar_right">
                 <p>&nbsp;</p>
             </nav>
-            <nav class="center">
+            <nav class="bar_center">
                 <p>
                    Current Local Time: {% now "H:i" %}
                 </p>
@@ -87,18 +76,24 @@
         <div class="frame">
             <section style="border:none">
                 <h2>Total votes: {{ total_votes }}</h2>
-                <p>
-                   Poll closes at {{ poll_close_time|time:"H:i" }} local time.
-                </p>
             </section>
+            <nav class="aside">
+                <p><a href="{% url 'polls:index' %}">
+                Vote</a></p>
+            </nav>
         </div>
 
         <div class="frame">
-            <footer class="left">
+            <footer class="bar_left">
                 <p>&nbsp;</p>
             </footer>
-            <footer class="right">
+            <footer class="bar_right">
                 <p>&nbsp;</p>
+            </footer>
+            <footer class="bar_center">
+                <p><em>
+                    Poll closes at {{ poll_close_time|time:"H:i" }} local time.
+                </em></p>
             </footer>
         </div>
     </body>

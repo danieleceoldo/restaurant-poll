@@ -108,19 +108,19 @@
                     <tr>
                         <th style="text-align: left;">Restaurant</th>
                         <th>Victories</th>
-                        <th>Parity</th>
-                        <th>Votes</th>
                         <th>Mark</th>
                         <th>Feedback Number</th>
+                        <th>Parity</th>
+                        <th>Votes</th>
                     </tr>
                 {% for x in stat %}
                     <tr>
                         <td style="text-align: left;">{{ x.name }}</th>
                         <td>{{ x.win }}</th>
-                        <td>{{ x.parity }}</th>
-                        <td>{{ x.vote }}</th>
                         <td>{{ x.mark }}</th>
                         <td>{{ x.feedback_num }}</th>
+                        <td>{{ x.parity }}</th>
+                        <td>{{ x.vote }}</th>
                     </tr>
                 {% endfor %}
                 </table>
