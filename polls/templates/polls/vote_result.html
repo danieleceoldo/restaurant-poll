@@ -112,8 +112,10 @@
                     <p>Today number of feedback: {{ feedback_num }}</p>
 
                 {% endif %}
+
                 {% load static %}
 		<img src="{% static "polls/images/feedback_graph.png" %}" alt="feedback_graph" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
+
             </section>
             <nav class="aside">
             {% if not error_message %}

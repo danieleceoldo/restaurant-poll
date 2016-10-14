@@ -88,8 +88,10 @@
                 <br>
                 <input type="submit" value="Vote" />
                 </form>
+
                 {% load static %}
 		<img src="{% static "polls/images/feedback_graph.png" %}" alt="feedback_graph" style="display: block; margin: 0 auto; margin-top: 20px;"/>
+
             </section>
             <nav class="aside">
                 <p><a href="{% url 'polls:voting' %}">
