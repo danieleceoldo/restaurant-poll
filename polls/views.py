@@ -194,6 +194,8 @@ def index(request):
         f.write('set grid\n')
         f.write('show grid\n')
         f.write('set key left top\n')
+        f.write('set title "Feedback Mark" font "sans, 14"\n')
+        f.write('show title\n')
         plot_str = ""
         for name in Ranking.objects.all():
             plot_str += ' "feedback_graph_data.txt" index "' + name.restaurant + '" with lines title "' + name.restaurant + '" linewidth 3,'
