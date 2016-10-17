@@ -167,7 +167,7 @@ def index(request):
 
     feedback_graph_stat_mtime = timezone.localtime(pytz.timezone('UTC').localize((datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))))
 
-    if now > feedback_graph_stat_mtime + timedelta(minutes=1):
+    if now > feedback_graph_stat_mtime + timedelta(minutes=10):
         f = open('feedback_graph_data.txt','w')
         if now > poll_close_time:
             ballot_dates = Ballot.objects.filter(date__lte=date.today()).order_by('date')
