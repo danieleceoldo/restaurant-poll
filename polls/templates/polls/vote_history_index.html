@@ -84,11 +84,32 @@
         <div class="frame">
             <section style="border:none">
                 {% if ballot_list %}
-                    <ul>
+                    <table class="result" style="padding-left:3em; padding-top: 1em; padding-bottom: 2em">
+                        <tr class="result">
+                            <th style="padding-right:5em">
+                                Date
+                            </th>
+                            <th style="padding-right:5em">
+                                Winner
+                            </th>
+                            <th style="padding-right:5em">
+                                Victory Cause
+                            </th>
+                        </tr>
                     {% for ballot in ballot_list %}
-                        <li><a href="{% url 'polls:vote_result_history' ballot.id %}">{{ ballot.date }}</a></li>
+                        <tr class="result">
+                            <td style="padding-right:5em">
+                                <a href="{% url 'polls:vote_result_history' ballot.id %}">{{ ballot.date }}</a>
+                            </td>
+                            <td style="padding-right:5em">
+                                {{ ballot.winner }}
+                            </td>
+                            <td style="padding-right:5em">
+                                {{ ballot.win_cause }}
+                            </td>
+                        </tr>
                     {% endfor %}
-                    </ul>
+                    </table>
                 {% else %}
                     <p>No polls are available.</p>
                 {% endif %}

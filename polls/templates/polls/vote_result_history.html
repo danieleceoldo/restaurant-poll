@@ -87,7 +87,7 @@
                 <h3>Total votes: {{ total_votes }}</h3>
 
                 <table class="result">
-                {% for restaurant in ballot.restaurant_set.all %}
+                {% for restaurant in result_detail %}
                     <tr class="result">
                         <td style="padding-right:5em">
                         {{ restaurant.name }}</td>

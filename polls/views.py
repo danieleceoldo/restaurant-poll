@@ -167,7 +167,7 @@ def index(request):
 
     feedback_graph_stat_mtime = timezone.localtime(pytz.timezone('UTC').localize((datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))))
 
-    if now > feedback_graph_stat_mtime + timedelta(minutes=10):
+    if now > feedback_graph_stat_mtime + timedelta(minutes=1):
         f = open('feedback_graph_data.txt','w')
         if now > poll_close_time:
             ballot_dates = Ballot.objects.filter(date__lte=date.today()).order_by('date')
@@ -193,9 +193,10 @@ def index(request):
         f.write('show ylabel\n')
         f.write('set grid\n')
         f.write('show grid\n')
+        f.write('set key left top\n')
         plot_str = ""
         for name in Ranking.objects.all():
-            plot_str += ' "feedback_graph_data.txt" index "' + name.restaurant + '" with lines title "' + name.restaurant + '",'
+            plot_str += ' "feedback_graph_data.txt" index "' + name.restaurant + '" with lines title "' + name.restaurant + '" linewidth 3,'
         f.write('plot' + plot_str + '\n')
         f.close()
 
@@ -275,12 +276,18 @@ class VoteHistoryIndexView(generic.ListView):
 
 def vote_result_history(request, ballot_id):
     ballot = get_object_or_404(Ballot, pk=ballot_id)
+    result_detail = []
     total_votes = 0
     for restaurant in ballot.restaurant_set.all():
+        result_detail.append({'name': restaurant.name, 'votes': restaurant.votes})
         total_votes += restaurant.votes
     template_name = 'polls/vote_result_history.html'
-    context = {'ballot': ballot,
-               'total_votes': total_votes}
+    result_detail.sort(key=lambda x: (x['votes'], x['name']), reverse=True)
+    context = {
+            'ballot': ballot,
+            'result_detail': result_detail,
+            'total_votes': total_votes
+            }
     return render(request, template_name, context)
 
 def vote_result_history_prev(request, ballot_id):
