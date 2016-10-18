@@ -168,11 +168,13 @@ def index(request):
     feedback_graph_stat_mtime = timezone.localtime(pytz.timezone('UTC').localize((datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))))
 
     if now > feedback_graph_stat_mtime + timedelta(minutes=10):
-        f = open('feedback_graph_data.txt','w')
+
         if now > poll_close_time:
             ballot_dates = Ballot.objects.filter(date__lte=date.today()).order_by('date')
         else:
             ballot_dates = Ballot.objects.filter(date__lt=date.today()).order_by('date')
+
+        f = open('feedback_graph_data.txt','w')
         for name in Ranking.objects.all():
             f.write('# ' + str(name.restaurant) + '\n')
             mark = 0
@@ -194,6 +196,7 @@ def index(request):
         f.write('set grid\n')
         f.write('show grid\n')
         f.write('set key left top\n')
+        f.write('show key\n')
         f.write('set title "Feedback Mark" font "sans, 14"\n')
         f.write('show title\n')
         plot_str = ""
@@ -204,6 +207,79 @@ def index(request):
 
         system('gnuplot generate_feedback_graph.gnuplot')
         system('mv feedback_graph.png images')
+
+        restaurant_list = []
+        for name in Ranking.objects.all():
+            restaurant_list.append(name.restaurant)
+        restaurant_list.sort()
+
+        f = open('win_history_graph_data.txt','w')
+        for ballot in ballot_dates:
+            f.write(str(restaurant_list.index(ballot.winner)) + '\n')
+        f.close()
+
+        f = open('generate_win_history_graph.gnuplot','w')
+        f.write('set terminal png medium size 640,480\n')
+        f.write('set output "win_history_graph.png"\n')
+        f.write('set xlabel "Days"\n')
+        f.write('show xlabel\n')
+        f.write('set grid\n')
+        f.write('set grid noxtics\n')
+        f.write('show grid\n')
+        f.write('set key off\n')
+        f.write('set yrange [-1:4]\n')
+        f.write('show yrange\n')
+        f.write('set xrange [-1:]\n')
+        f.write('show xrange\n')
+        f.write('set pointsize 2\n')
+        f.write('set title "Win History" font "sans, 14"\n')
+        f.write('show title\n')
+        ytics_str = ""
+        for name in restaurant_list:
+            ytics_str += '"' + name + '" ' + str(restaurant_list.index(name)) + ", "
+        f.write('set ytics (' + ytics_str + ')\n')
+        f.write('plot "win_history_graph_data.txt" with points pointtype 5\n')
+        f.close()
+
+        system('gnuplot generate_win_history_graph.gnuplot')
+        system('mv win_history_graph.png images')
+
+        win = []
+        for x in restaurant_list:
+            win.append(0)
+
+        for ballot in ballot_dates:
+            win[restaurant_list.index(ballot.winner)] += 1
+
+        f = open('win_graph_data.txt','w')
+        for x in win:
+            f.write(str(x) + '\n')
+        f.close()
+
+        f = open('generate_win_graph.gnuplot','w')
+        f.write('set terminal png medium size 640,480\n')
+        f.write('set output "win_graph.png"\n')
+        f.write('set ylabel "Wins"\n')
+        f.write('show ylabel\n')
+        f.write('set grid\n')
+        f.write('set grid noxtics\n')
+        f.write('show grid\n')
+        f.write('set yrange [0:' + str(max(win)+2)  + ']\n')
+        f.write('show yrange\n')
+        f.write('set key off\n')
+        f.write('set boxwidth 1.5 relative\n')
+        f.write('set style fill pattern 2\n')
+        f.write('set title "Wins" font "sans, 14"\n')
+        f.write('show title\n')
+        xtics_str = ""
+        for name in restaurant_list:
+            xtics_str += '"' + name + '" ' + str(restaurant_list.index(name)) + ", "
+        f.write('set xtics (' + xtics_str + ')\n')
+        f.write('plot "win_graph_data.txt" with histogram\n')
+        f.close()
+
+        system('gnuplot generate_win_graph.gnuplot')
+        system('mv win_graph.png images')
 
     chdir(old_wd)
 
@@ -330,11 +406,11 @@ def statistics(request):
     stat = []
     stat_index = {}
     for name in Ranking.objects.all():
-        stat.append(
-            {'name': name.restaurant, 'win': 0, 'parity': 0, 'vote': 0,
-             'majority': 0, 'feedback': 0, 'most_rated': 0, 'rand_feedback': 0,
-             'rand_no_feedback': 0, 'mark': 0, 'feedback_num': 0}
-        )
+        stat.append( {
+            'name': name.restaurant, 'win': 0, 'parity': 0, 'vote': 0,
+            'majority': 0, 'feedback': 0, 'most_rated': 0, 'rand_feedback': 0,
+            'rand_no_feedback': 0, 'mark': 0, 'feedback_num': 0
+             } )
     for x in stat:
         stat_index[x['name']] = stat.index(x)
 
@@ -382,10 +458,10 @@ def statistics(request):
 
     if ballot_dates:
         context = {
-            'stat': stat,
-            'from_ballot_date' : ballot_dates[0],
-            'to_ballot_date' : ballot_dates[len(ballot_dates)-1]
-        }
+                'stat': stat,
+                'from_ballot_date' : ballot_dates[0],
+                'to_ballot_date' : ballot_dates[len(ballot_dates)-1]
+                }
     else:
         context = {}
 

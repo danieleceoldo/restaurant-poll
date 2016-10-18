@@ -6,4 +6,8 @@ set ylabel "Mark"
 show ylabel
 set grid
 show grid
-plot "feedback_graph_data.txt" index "Aratro" with lines title "Aratro", "feedback_graph_data.txt" index "2 Chef" with lines title "2 Chef", "feedback_graph_data.txt" index "Calabianca" with lines title "Calabianca", "feedback_graph_data.txt" index "Concorde" with lines title "Concorde",
+set key left top
+show key
+set title "Feedback Mark" font "sans, 14"
+show title
+plot "feedback_graph_data.txt" index "Aratro" with lines title "Aratro" linewidth 3, "feedback_graph_data.txt" index "2 Chef" with lines title "2 Chef" linewidth 3, "feedback_graph_data.txt" index "Calabianca" with lines title "Calabianca" linewidth 3, "feedback_graph_data.txt" index "Concorde" with lines title "Concorde" linewidth 3,
