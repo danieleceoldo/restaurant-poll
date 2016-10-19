@@ -33,7 +33,7 @@ poll_time_frame = {
 
 feedback_time_frame = {
     'start': {'hour': 13, 'minute': 15},
-    'end':   {'hour': 15, 'minute': 30}
+    'end':   {'hour': 16, 'minute': 30}
 }
 
 feedback_marks = [
@@ -197,7 +197,7 @@ def index(request):
         f.write('show grid\n')
         f.write('set key left top\n')
         f.write('show key\n')
-        f.write('set title "Feedback Mark" font "sans, 14"\n')
+        f.write('set title "Feedback History" font "sans, 14"\n')
         f.write('show title\n')
         plot_str = ""
         for name in Ranking.objects.all():
