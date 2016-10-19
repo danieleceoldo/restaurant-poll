@@ -19,10 +19,10 @@ from .models import Ballot, Restaurant, Feedback, Ranking
 from os import system, chdir, getcwd, stat
 
 
-restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
+poll_restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
 
 # TODO
-#for restaurant in restaurant_list:
+#for restaurant in poll_restaurant_list:
 #    if Ranking.objects.filter(restaurant=restaurant).count() == 0:
 #        Ranking.objects.create(restaurant=restaurant)
 
@@ -33,7 +33,7 @@ poll_time_frame = {
 
 feedback_time_frame = {
     'start': {'hour': 13, 'minute': 15},
-    'end':   {'hour': 16, 'minute': 30}
+    'end':   {'hour': 15, 'minute': 30}
 }
 
 feedback_marks = [
@@ -64,7 +64,7 @@ def index(request):
     elif now < poll_close_time:
         if Ballot.objects.filter(date=date.today()).count() == 0:
             ballot = Ballot.objects.create(date = date.today())
-            for restaurant in restaurant_list:
+            for restaurant in poll_restaurant_list:
                 Restaurant.objects.create(ballot = ballot, name = restaurant)
         else:
             ballot = Ballot.objects.get(date=date.today())

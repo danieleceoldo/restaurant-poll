@@ -4,73 +4,8 @@
         <title>
             Statistics
         </title>
-
-        <style>
-            div.frame {
-                clear: both;
-                border: 1px solid black;
-                overflow: hidden;
-                margin-bottom: -1px;
-            }
-            header {
-                border: 1px solid black;
-                text-align: center;
-                margin-bottom: -1px;
-            }
-            nav.left {
-                float: left;
-                width: 15%;
-                padding-left: 1em;
-            }
-            nav.right {
-                float: right;
-                width: 15%;
-                text-align: right;
-                padding-right: 1em;
-            }
-            nav.center {
-                width: 60%;
-                text-align: center;
-                margin: 0 auto;
-            }
-            nav.aside {
-                float: left;
-                border-left: 1px solid black;
-                width: 20%;
-                padding-left: 1em;
-                overflow: auto;
-            }
-            section {
-                clear: both;
-                float: left;
-                width: 70%;
-                border-right: 1px solid black;
-                margin: -1px;
-                padding-left: 1em;
-                overflow: auto;
-            }
-            footer.left {
-                clear: both;
-                float: left;
-                width: 45%;
-                padding-left: 1em;
-            }
-            footer.right {
-                float: right;
-                width: 45%;
-                text-align: right;
-                padding-right: 1em;
-            }
-            table, th, td {
-                border-collapse: collapse;
-                margin-bottom: -1px;
-                padding-left: 1em;
-                text-align: center;
-            }
-            tr:nth-child(even) {
-                background-color: #dddddd;
-            }
-        </style>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
     </head>
 
     <body>
@@ -81,14 +16,14 @@
         </header>
 
         <div class="frame">
-            <nav class="left">
+            <nav class="bar_left">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
             </nav>
-            <nav class="right">
+            <nav class="bar_right">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
             </nav>
         {% if stat %}
-            <nav class="center">
+            <nav class="bar_center">
                 <p>from {{ from_ballot_date }} to {{ to_ballot_date }}</p>
             </nav>
         {% endif %}
@@ -96,70 +31,75 @@
 
         <div class="frame">
             <section style="padding: 1em;
-                            width: 100%;
-                            overflow: hidden;
-                            border: none;">
+                            width: 100%;">
 
             {% if stat %}
 
                 <h2>General Statistics</h2>
 
-                <table>
-                    <tr>
-                        <th style="text-align: left;">Restaurant</th>
-                        <th>Victories</th>
-                        <th>Mark</th>
-                        <th>Feedback Number</th>
-                        <th>Parity</th>
-                        <th>Votes</th>
+                <table class="statistics">
+                    <tr class="statistics">
+                        <th class="statistics" style="text-align: left;">Restaurant</th>
+                        <th class="statistics">Victories</th>
+                        <th class="statistics">Mark</th>
+                        <th class="statistics">Feedback Number</th>
+                        <th class="statistics">Parity</th>
+                        <th class="statistics">Votes</th>
                     </tr>
                 {% for x in stat %}
-                    <tr>
-                        <td style="text-align: left;">{{ x.name }}</th>
-                        <td>{{ x.win }}</th>
-                        <td>{{ x.mark }}</th>
-                        <td>{{ x.feedback_num }}</th>
-                        <td>{{ x.parity }}</th>
-                        <td>{{ x.vote }}</th>
+                    <tr class="statistics">
+                        <td class="statistics" style="text-align: left;">{{ x.name }}</td>
+                        <td class="statistics">{{ x.win }}</td>
+                        <td class="statistics">{{ x.mark }}</td>
+                        <td class="statistics">{{ x.feedback_num }}</td>
+                        <td class="statistics">{{ x.parity }}</td>
+                        <td class="statistics">{{ x.vote }}</td>
                     </tr>
                 {% endfor %}
                 </table>
-
+                <br>
 
                 <h2>Victory Cause</h2>
 
-                <table style="width:95%;">
-                    <tr>
-                        <th style="text-align: left;">Restaurant</th>
-                        <th>Majority Vote</th>
-                        <th>Best Feedback</th>
-                        <th>Most Rated</th>
-                        <th>Random Same Feedback</th>
-                        <th>Random No Feedback</th>
+                <table class="statistics" style="width:95%;">
+                    <tr class="statistics">
+                        <th class="statistics" style="text-align: left;">Restaurant</th>
+                        <th class="statistics">Majority Vote</th>
+                        <th class="statistics">Best Feedback</th>
+                        <th class="statistics">Most Rated</th>
+                        <th class="statistics">Random Same Feedback</th>
+                        <th class="statistics">Random No Feedback</th>
                     </tr>
                 {% for x in stat %}
-                    <tr>
-                        <td style="text-align: left;">{{ x.name }}</th>
-                        <td>{{ x.majority }}</th>
-                        <td>{{ x.feedback }}</th>
-                        <td>{{ x.most_rated }}</th>
-                        <td>{{ x.rand_feedback }}</th>
-                        <td>{{ x.rand_no_feedback }}</th>
+                    <tr class="statistics">
+                        <td class="statistics" style="text-align: left;">{{ x.name }}</td>
+                        <td class="statistics">{{ x.majority }}</td>
+                        <td class="statistics">{{ x.feedback }}</td>
+                        <td class="statistics">{{ x.most_rated }}</td>
+                        <td class="statistics">{{ x.rand_feedback }}</td>
+                        <td class="statistics">{{ x.rand_no_feedback }}</td>
                     </tr>
                 {% endfor %}
                 </table>
+                <br>
+
             {% else %}
+
                 <p>No statistics are available.</p>
+
             {% endif %}
             </section>
         </div>
 
         <div class="frame">
-            <footer class="left">
+            <footer class="bar_left">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
             </footer>
-            <footer class="right">
+            <footer class="bar_right">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
+            </footer>
+            <footer class="bar_center">
+                <p>&nbsp;</p>
             </footer>
         </div>
     </body>

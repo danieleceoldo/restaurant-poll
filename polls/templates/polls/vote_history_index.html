@@ -5,63 +5,8 @@
             Vote History Index
         </title>
         <meta http-equiv="refresh" content="60">
-        <style>
-            div.frame {
-                clear: both;
-                border: 1px solid black;
-                overflow: hidden;
-                margin-bottom: -1px;
-            }
-            header {
-                border: 1px solid black;
-                text-align: center;
-                margin-bottom: -1px;
-            }
-            nav.left {
-                float: left;
-                width: 15%;
-                padding-left: 1em;
-            }
-            nav.right {
-                float: right;
-                width: 15%;
-                text-align: right;
-                padding-right: 1em;
-            }
-            nav.center {
-                width: 60%;
-                text-align: center;
-                margin: 0 auto;
-            }
-            nav.aside {
-                float: left;
-                border-left: 1px solid black;
-                width: 20%;
-                padding-left: 1em;
-                overflow: auto;
-            }
-            section {
-                clear: both;
-                float: left;
-                width: 70%;
-                border-right: 1px solid black;
-                margin: -1px;
-                padding-left: 1em;
-                overflow: auto;
-            }
-            footer.left {
-                clear: both;
-                float: left;
-                width: 45%;
-                padding-left: 1em;
-            }
-            footer.right {
-                float: right;
-                width: 45%;
-                text-align: right;
-                padding-right: 1em;
-            }
-        </style>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
     </head>
     <body>
         <header>
@@ -71,34 +16,40 @@
         </header>
 
         <div class="frame">
-            <nav class="left">
+            <nav class="bar_left">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
             </nav>
-            <nav class="right">
+            <nav class="bar_right">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
             </nav>
-            <nav class="center">
+            <nav class="bar_center">
+                <p>&nbsp;</p>
             </nav>
         </div>
 
         <div class="frame">
-            <section style="border:none">
+            <section style="width: 100%;">
                 {% if ballot_list %}
+
                     <table class="result" style="padding-left:3em; padding-top: 1em; padding-bottom: 2em">
-                        <tr class="result">
-                            <th style="padding-right:5em">
+                        <tr>
+                            <th style="padding-right: 5em;
+                                       padding-bottom: 1em;">
                                 Date
                             </th>
-                            <th style="padding-right:5em">
+                            <th style="padding-right: 5em;
+                                       padding-bottom: 1em;">
                                 Winner
                             </th>
-                            <th style="padding-right:5em">
+                            <th style="padding-right: 5em;
+                                       padding-bottom: 1em;">
                                 Victory Cause
                             </th>
                         </tr>
                     {% for ballot in ballot_list %}
-                        <tr class="result">
-                            <td style="padding-right:5em">
+                         <tr>
+                            <td style="padding-right: 5em;
+                                       padding-bottom: 0.2em;">
                                 <a href="{% url 'polls:vote_result_history' ballot.id %}">{{ ballot.date }}</a>
                             </td>
                             <td style="padding-right:5em">
@@ -110,18 +61,24 @@
                         </tr>
                     {% endfor %}
                     </table>
+
                 {% else %}
+
                     <p>No polls are available.</p>
+
                 {% endif %}
             </section>
         </div>
 
         <div class="frame">
-            <footer class="left">
+            <footer class="bar_left">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
             </footer>
-            <footer class="right">
+            <footer class="bar_right">
                 <p><a href="{% url 'polls:index' %}">Back</a></p>
+            </footer>
+            <footer class="bar_center">
+                <p>&nbsp;</p>
             </footer>
         </div>
     </body>

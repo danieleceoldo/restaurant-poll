@@ -5,60 +5,8 @@
             {% now "N d, o" %}
         </title>
         <meta http-equiv="refresh" content="60">
-        <style>
-            div.frame {
-                clear: both;
-                border: 1px solid black;
-                overflow: hidden;
-                margin-bottom: -1px;
-            }
-            header {
-                border: 1px solid black;
-                text-align: center;
-                margin-bottom: -1px;
-            }
-            .bar_left {
-                clear: both;
-                float: left;
-                width: 15%;
-                padding-left: 1em;
-            }
-            .bar_right {
-                float: right;
-                width: 15%;
-                text-align: right;
-                padding-right: 1em;
-            }
-            .bar_center {
-                width: 60%;
-                text-align: center;
-                margin: 0 auto;
-            }
-            nav.aside {
-                float: left;
-                border-left: 1px solid black;
-                width: 20%;
-                padding-left: 1em;
-                overflow: hidden;
-            }
-            section {
-                clear: both;
-                float: left;
-                width: 70%;
-                border-right: 1px solid black;
-                margin: -1px;
-                padding-left: 1em;
-                overflow: auto;
-            }
-            table.result {
-                border-collapse: collapse;
-            }
-            tr.result:nth-child(even) {
-            }
-            tr.result {
-                border-bottom: 1px solid black;
-            }
-        </style>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
     </head>
 
     <body>
@@ -119,6 +67,7 @@
                 <img src="{% static "polls/images/win_graph.png" %}" alt="win_history_graph" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
 
             </section>
+
             <nav class="aside">
             {% if not error_message %}
                 <p><a href="{% url 'polls:feedback_detail' %}">
@@ -131,6 +80,7 @@
                 <p><a href="{% url 'polls:feedback_history' %}">
                 Feedback History</a></p>
             </nav>
+
         </div>
 
         <div class="frame">
