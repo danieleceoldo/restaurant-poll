@@ -36,15 +36,19 @@
                     <p><strong>{{ error_message }}</strong></p>
                 {% endif %}
 
-                <form action="{% url 'polls:vote' %}" method="post">
-                {% csrf_token %}
-                {% for restaurant in ballot.restaurant_set.all %}
-                    <input type="radio" name="restaurant" id="restaurant{{ forloop.counter }}" value="{{ restaurant.id }}" />
-                    <label for="restaurant{{ forloop.counter }}">{{ restaurant.name }}</label><br />
-                {% endfor %}
-                <br>
-                <input type="submit" value="Vote" />
-                </form>
+                <div style="border: 1px solid black;
+                            padding: 2em;
+                            padding-left: 3em;">
+                    <form action="{% url 'polls:vote' %}" method="post">
+                    {% csrf_token %}
+                    {% for restaurant in ballot.restaurant_set.all %}
+                        <input type="radio" name="restaurant" id="restaurant{{ forloop.counter }}" value="{{ restaurant.id }}" />
+                        <label for="restaurant{{ forloop.counter }}">{{ restaurant.name }}</label><br />
+                    {% endfor %}
+                    <br>
+                    <input type="submit" value="Vote" />
+                    </form>
+                </div>
 
                 {% load static %}
                 <img src="{% static "polls/images/feedback_graph.png" %}" alt="feedback_graph" style="display: block; margin: 0 auto; margin-top: 20px;"/>
