@@ -63,7 +63,7 @@
             table, th, td {
                 border-collapse: collapse;
                 margin-bottom: -1px;
-                padding-left: 1em;
+                padding: 1em;
                 text-align: center;
             }
         </style>
@@ -100,15 +100,12 @@
                     </tr>
                 {% for feedback in feedback_list %}
                     <tr>
-                         <td colspan="3">&nbsp;</td>
-                    </tr>
-                    <tr>
                         <td style="text-align: left"><strong>{{ feedback.ballot.date }}</strong></td>
                         <td>{{ feedback.ballot.winner }}</td>
                         <td>{{ feedback.mark }}</td>
                     </tr>
-                    <tr>
-                         <td colspan="3" style="text-align: left;"><em>{{ feedback.comment }}</em></td>
+                    <tr style="border-bottom: 1pt solid black;">
+                        <td colspan="3" style="text-align: left;"><em>{{ feedback.comment }}</em></td>
                     </tr>
                 {% endfor %}
                 </table>
