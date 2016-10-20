@@ -21,12 +21,6 @@ from os import system, chdir, getcwd, stat
 
 poll_restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
 
-# TODO
-#for restaurant in poll_restaurant_list:
-#    if Ranking.objects.filter(restaurant=restaurant).count() == 0:
-#        Ranking.objects.create(restaurant=restaurant)
-
-
 poll_time_frame = { 
     'start': {'hour': 12, 'minute': 00},
     'end':   {'hour': 12, 'minute': 30} 
@@ -61,17 +55,24 @@ def index(request):
         template_name = 'polls/vote_waiting.html'
         context = {'poll_open_time': poll_open_time,
                    'poll_close_time': poll_close_time}
+
     elif now < poll_close_time:
+
+        for restaurant in poll_restaurant_list:
+            if Ranking.objects.filter(restaurant=restaurant).count() == 0:
+                Ranking.objects.create(restaurant=restaurant)
+
         if Ballot.objects.filter(date=date.today()).count() == 0:
             ballot = Ballot.objects.create(date = date.today())
             for restaurant in poll_restaurant_list:
                 Restaurant.objects.create(ballot = ballot, name = restaurant)
         else:
             ballot = Ballot.objects.get(date=date.today())
+
         template_name = 'polls/vote_detail.html'
         context = {'ballot': ballot,
-                   'poll_open_time': poll_open_time,
                    'poll_close_time': poll_close_time}
+
     else:
         template_name = 'polls/vote_result.html'
 
@@ -165,9 +166,9 @@ def index(request):
     old_wd = getcwd()
     chdir('polls/static/polls/')
 
-    feedback_graph_stat_mtime = timezone.localtime(pytz.timezone('UTC').localize((datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))))
+    feedback_graph_stat_mtime = pytz.timezone('Europe/Rome').localize((datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime)))
 
-    if now > feedback_graph_stat_mtime + timedelta(minutes=10):
+    if now > feedback_graph_stat_mtime + timedelta(minutes=1):
 
         if now > poll_close_time:
             ballot_dates = Ballot.objects.filter(date__lte=date.today()).order_by('date')
