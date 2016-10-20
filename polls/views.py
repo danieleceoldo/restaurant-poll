@@ -26,6 +26,7 @@ poll_restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
 #    if Ranking.objects.filter(restaurant=restaurant).count() == 0:
 #        Ranking.objects.create(restaurant=restaurant)
 
+
 poll_time_frame = { 
     'start': {'hour': 12, 'minute': 00},
     'end':   {'hour': 12, 'minute': 30} 
@@ -47,7 +48,6 @@ feedback_marks = [
 
 
 def index(request):
-    timezone.activate(pytz.timezone('Europe/Rome'))
     now = timezone.localtime(timezone.now())
     poll_open_time = now.replace(microsecond=0, second=0,
         minute=poll_time_frame['start']['minute'],
@@ -287,7 +287,6 @@ def index(request):
 
 
 def voting(request):
-    timezone.activate(pytz.timezone('Europe/Rome'))
     now = timezone.localtime(timezone.now())
     poll_open_time = now.replace(microsecond=0, second=0,
         minute=poll_time_frame['start']['minute'],
@@ -313,7 +312,6 @@ def voting(request):
 
 
 def feedback_detail(request):
-    timezone.activate(pytz.timezone('Europe/Rome'))
     now = timezone.localtime(timezone.now())
     feedback_open_time = now.replace(microsecond=0, second=0,
         minute=feedback_time_frame['start']['minute'],
@@ -341,7 +339,6 @@ class VoteHistoryIndexView(generic.ListView):
     context_object_name = 'ballot_list'
 
     def get_queryset(self):
-        timezone.activate(pytz.timezone('Europe/Rome'))
         now = timezone.localtime(timezone.now())
         poll_close_time = now.replace(microsecond=0, second=0,
             minute=poll_time_frame['end']['minute'],
@@ -414,7 +411,6 @@ def statistics(request):
     for x in stat:
         stat_index[x['name']] = stat.index(x)
 
-    timezone.activate(pytz.timezone('Europe/Rome'))
     now = timezone.localtime(timezone.now())
     poll_close_time = now.replace(microsecond=0, second=0,
         minute=poll_time_frame['end']['minute'],
