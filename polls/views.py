@@ -65,7 +65,7 @@ def index(request):
         feedback_graph_stat_mtime = timezone.make_aware(datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))
 
         # Graphs need to be updated if some time has passed
-        if now > feedback_graph_stat_mtime + timedelta(seconds=1):
+        if now > feedback_graph_stat_mtime + timedelta(minutes=10):
 
             f = open('feedback_graph_data.txt','w')
             for name in Ranking.objects.all():
