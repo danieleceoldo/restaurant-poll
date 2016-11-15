@@ -15,7 +15,7 @@ import random
 
 from .models import Ballot, Restaurant, Feedback, Ranking
 
-from os import system, chdir, getcwd, stat
+from os import system, path, chdir, getcwd, stat
 
 
 poll_restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
@@ -55,7 +55,7 @@ def index(request):
     else:
         ballot_dates = Ballot.objects.filter(date__lt=now.date()).order_by('date')
 
-    if ballot_dates.count() != 0:
+    if ballot_dates.count() != 0 and path.exists('polls/static/polls/'):
 
         # TODO: race condition when two clients request the same page
         old_wd = getcwd()
