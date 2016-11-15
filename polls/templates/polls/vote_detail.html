@@ -52,6 +52,8 @@
 
                 <br>
 
+                {% if graphs %}
+
                 <ul class="tab">
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'feedback_history')" id="defaultOpen">Feedback History</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'win_history')">Win History</a></li>
@@ -61,16 +63,18 @@
                 {% load static %}
 
                 <div id="feedback_history" class="tabcontent">
-                    <img src="{% static "polls/images/feedback_graph.png" %}" alt="feedback_graph" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
+                    <img src="{% static "polls/images/feedback_graph.png" %}" alt="Feedback History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
                 </div>
 
                 <div id="win_history" class="tabcontent">
-                    <img src="{% static "polls/images/win_history_graph.png" %}" alt="win_history_graph" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
+                    <img src="{% static "polls/images/win_history_graph.png" %}" alt="Win History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
                 </div>
 
                 <div id="wins" class="tabcontent">
-                    <img src="{% static "polls/images/win_graph.png" %}" alt="win_graph" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
+                    <img src="{% static "polls/images/win_graph.png" %}" alt="Wins" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
                 </div>
+
+                {% endif %}
 
             </section>
             <nav class="aside">

@@ -8,9 +8,8 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views import generic
 
+from datetime import datetime, timedelta
 from django.utils import timezone
-import pytz
-from datetime import date, datetime, timedelta
 
 import random
 
@@ -21,9 +20,9 @@ from os import system, chdir, getcwd, stat
 
 poll_restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
 
-poll_time_frame = { 
+poll_time_frame = {
     'start': {'hour': 12, 'minute': 00},
-    'end':   {'hour': 12, 'minute': 30} 
+    'end':   {'hour': 12, 'minute': 30}
 }
 
 feedback_time_frame = {
@@ -42,6 +41,7 @@ feedback_marks = [
 
 
 def index(request):
+
     now = timezone.localtime(timezone.now())
     poll_open_time = now.replace(microsecond=0, second=0,
         minute=poll_time_frame['start']['minute'],
@@ -50,11 +50,143 @@ def index(request):
         minute=poll_time_frame['end']['minute'],
         hour=poll_time_frame['end']['hour'])
 
+    if now > poll_close_time:
+        ballot_dates = Ballot.objects.filter(date__lte=now.date()).order_by('date')
+    else:
+        ballot_dates = Ballot.objects.filter(date__lt=now.date()).order_by('date')
+
+    if ballot_dates.count() != 0:
+
+        # TODO: race condition when two clients request the same page
+        old_wd = getcwd()
+        chdir('polls/static/polls/')
+
+        # The image files must ALWAYS be present in the directory
+        feedback_graph_stat_mtime = timezone.make_aware(datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))
+
+        # Graphs need to be updated if some time has passed
+        if now > feedback_graph_stat_mtime + timedelta(seconds=1):
+
+            f = open('feedback_graph_data.txt','w')
+            for name in Ranking.objects.all():
+                f.write('# ' + str(name.restaurant) + '\n')
+                mark = 0
+                for ballot in ballot_dates:
+                    if ballot.winner == name.restaurant:
+                        for feedback in ballot.feedback_set.all():
+                            mark += feedback.mark
+                    f.write(str(mark) + '\n')
+                f.write('\n\n')
+            f.close()
+
+            f = open('generate_feedback_graph.gnuplot','w')
+            f.write('set terminal png medium size 640,480\n')
+            f.write('set output "feedback_graph.png"\n')
+            f.write('set xlabel "Days"\n')
+            f.write('show xlabel\n')
+            f.write('set ylabel "Mark"\n')
+            f.write('show ylabel\n')
+            f.write('set grid\n')
+            f.write('show grid\n')
+            f.write('set key left top\n')
+            f.write('show key\n')
+            f.write('set title "Feedback History" font "sans, 14"\n')
+            f.write('show title\n')
+            plot_str = ""
+            for name in Ranking.objects.all():
+                plot_str += ' "feedback_graph_data.txt" index "' + name.restaurant + '" with lines title "' + name.restaurant + '" linewidth 3,'
+            f.write('plot' + plot_str + '\n')
+            f.close()
+
+            system('gnuplot generate_feedback_graph.gnuplot')
+            system('mv feedback_graph.png images')
+
+            restaurant_list = []
+            for name in Ranking.objects.all():
+                restaurant_list.append(name.restaurant)
+            restaurant_list.sort()
+
+            f = open('win_history_graph_data.txt','w')
+            for ballot in ballot_dates:
+                f.write(str(restaurant_list.index(ballot.winner)) + '\n')
+            f.close()
+
+            f = open('generate_win_history_graph.gnuplot','w')
+            f.write('set terminal png medium size 640,480\n')
+            f.write('set output "win_history_graph.png"\n')
+            f.write('set xlabel "Days"\n')
+            f.write('show xlabel\n')
+            f.write('set grid\n')
+            f.write('set grid noxtics\n')
+            f.write('show grid\n')
+            f.write('set key off\n')
+            f.write('set yrange [-1:4]\n')
+            f.write('show yrange\n')
+            f.write('set xrange [-1:]\n')
+            f.write('show xrange\n')
+            f.write('set pointsize 2\n')
+            f.write('set title "Win History" font "sans, 14"\n')
+            f.write('show title\n')
+            ytics_str = ""
+            for name in restaurant_list:
+                ytics_str += '"' + name + '" ' + str(restaurant_list.index(name)) + ", "
+            f.write('set ytics (' + ytics_str + ')\n')
+            f.write('plot "win_history_graph_data.txt" with points pointtype 5\n')
+            f.close()
+
+            system('gnuplot generate_win_history_graph.gnuplot')
+            system('mv win_history_graph.png images')
+
+            win = []
+            for x in restaurant_list:
+                win.append(0)
+
+            for ballot in ballot_dates:
+                win[restaurant_list.index(ballot.winner)] += 1
+
+            f = open('win_graph_data.txt','w')
+            for x in win:
+                f.write(str(x) + '\n')
+            f.close()
+
+            f = open('generate_win_graph.gnuplot','w')
+            f.write('set terminal png medium size 640,480\n')
+            f.write('set output "win_graph.png"\n')
+            f.write('set ylabel "Wins"\n')
+            f.write('show ylabel\n')
+            f.write('set grid\n')
+            f.write('set grid noxtics\n')
+            f.write('show grid\n')
+            f.write('set yrange [0:' + str(max(win)+2)  + ']\n')
+            f.write('show yrange\n')
+            f.write('set key off\n')
+            f.write('set boxwidth 1.5 relative\n')
+            f.write('set style fill pattern 2\n')
+            f.write('set title "Wins" font "sans, 14"\n')
+            f.write('show title\n')
+            xtics_str = ""
+            for name in restaurant_list:
+                xtics_str += '"' + name + '" ' + str(restaurant_list.index(name)) + ", "
+            f.write('set xtics (' + xtics_str + ')\n')
+            f.write('plot "win_graph_data.txt" with histogram\n')
+            f.close()
+
+            system('gnuplot generate_win_graph.gnuplot')
+            system('mv win_graph.png images')
+
+        chdir(old_wd)
+
+        graphs = True
+
+    else:
+
+        graphs = False
 
     if now < poll_open_time:
         template_name = 'polls/vote_waiting.html'
         context = {'poll_open_time': poll_open_time,
-                   'poll_close_time': poll_close_time}
+                   'poll_close_time': poll_close_time,
+                   'graphs': graphs}
 
     elif now < poll_close_time:
 
@@ -62,24 +194,26 @@ def index(request):
             if Ranking.objects.filter(restaurant=restaurant).count() == 0:
                 Ranking.objects.create(restaurant=restaurant)
 
-        if Ballot.objects.filter(date=date.today()).count() == 0:
-            ballot = Ballot.objects.create(date = date.today())
+        if Ballot.objects.filter(date=now.date()).count() == 0:
+            ballot = Ballot.objects.create(date = now.date())
             for restaurant in poll_restaurant_list:
                 Restaurant.objects.create(ballot = ballot, name = restaurant)
         else:
-            ballot = Ballot.objects.get(date=date.today())
+            ballot = Ballot.objects.get(date=now.date())
 
         template_name = 'polls/vote_detail.html'
         context = {'ballot': ballot,
-                   'poll_close_time': poll_close_time}
+                   'poll_close_time': poll_close_time,
+                   'graphs': graphs}
 
     else:
         template_name = 'polls/vote_result.html'
 
-        if Ballot.objects.filter(date=date.today()).count() == 0:
-            context = {'error_message': "No vote has been cast. Poll is over, no result is available."}
+        if Ballot.objects.filter(date=now.date()).count() == 0:
+            context = {'error_message': "No vote has been cast. Poll is over, no result is available.",
+                    'graphs': graphs}
         else:
-            ballot = Ballot.objects.get(date=date.today())
+            ballot = Ballot.objects.get(date=now.date())
 
             if ballot.winner == "":
                 win_name = []
@@ -161,128 +295,9 @@ def index(request):
                        'poll_open_time': poll_open_time,
                        'poll_close_time': poll_close_time,
                        'feedback_open_time': feedback_open_time,
-                       'feedback_close_time': feedback_close_time}
+                       'feedback_close_time': feedback_close_time,
+                       'graphs': graphs}
 
-    old_wd = getcwd()
-    chdir('polls/static/polls/')
-
-    feedback_graph_stat_mtime = pytz.timezone('Europe/Rome').localize((datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime)))
-
-    if now > feedback_graph_stat_mtime + timedelta(minutes=1):
-
-        if now > poll_close_time:
-            ballot_dates = Ballot.objects.filter(date__lte=date.today()).order_by('date')
-        else:
-            ballot_dates = Ballot.objects.filter(date__lt=date.today()).order_by('date')
-
-        f = open('feedback_graph_data.txt','w')
-        for name in Ranking.objects.all():
-            f.write('# ' + str(name.restaurant) + '\n')
-            mark = 0
-            for ballot in ballot_dates:
-                if ballot.winner == name.restaurant:
-                    for feedback in ballot.feedback_set.all():
-                        mark += feedback.mark
-                f.write(str(mark) + '\n')
-            f.write('\n\n')
-        f.close()
-
-        f = open('generate_feedback_graph.gnuplot','w')
-        f.write('set terminal png medium size 640,480\n')
-        f.write('set output "feedback_graph.png"\n')
-        f.write('set xlabel "Days"\n')
-        f.write('show xlabel\n')
-        f.write('set ylabel "Mark"\n')
-        f.write('show ylabel\n')
-        f.write('set grid\n')
-        f.write('show grid\n')
-        f.write('set key left top\n')
-        f.write('show key\n')
-        f.write('set title "Feedback History" font "sans, 14"\n')
-        f.write('show title\n')
-        plot_str = ""
-        for name in Ranking.objects.all():
-            plot_str += ' "feedback_graph_data.txt" index "' + name.restaurant + '" with lines title "' + name.restaurant + '" linewidth 3,'
-        f.write('plot' + plot_str + '\n')
-        f.close()
-
-        system('gnuplot generate_feedback_graph.gnuplot')
-        system('mv feedback_graph.png images')
-
-        restaurant_list = []
-        for name in Ranking.objects.all():
-            restaurant_list.append(name.restaurant)
-        restaurant_list.sort()
-
-        f = open('win_history_graph_data.txt','w')
-        for ballot in ballot_dates:
-            f.write(str(restaurant_list.index(ballot.winner)) + '\n')
-        f.close()
-
-        f = open('generate_win_history_graph.gnuplot','w')
-        f.write('set terminal png medium size 640,480\n')
-        f.write('set output "win_history_graph.png"\n')
-        f.write('set xlabel "Days"\n')
-        f.write('show xlabel\n')
-        f.write('set grid\n')
-        f.write('set grid noxtics\n')
-        f.write('show grid\n')
-        f.write('set key off\n')
-        f.write('set yrange [-1:4]\n')
-        f.write('show yrange\n')
-        f.write('set xrange [-1:]\n')
-        f.write('show xrange\n')
-        f.write('set pointsize 2\n')
-        f.write('set title "Win History" font "sans, 14"\n')
-        f.write('show title\n')
-        ytics_str = ""
-        for name in restaurant_list:
-            ytics_str += '"' + name + '" ' + str(restaurant_list.index(name)) + ", "
-        f.write('set ytics (' + ytics_str + ')\n')
-        f.write('plot "win_history_graph_data.txt" with points pointtype 5\n')
-        f.close()
-
-        system('gnuplot generate_win_history_graph.gnuplot')
-        system('mv win_history_graph.png images')
-
-        win = []
-        for x in restaurant_list:
-            win.append(0)
-
-        for ballot in ballot_dates:
-            win[restaurant_list.index(ballot.winner)] += 1
-
-        f = open('win_graph_data.txt','w')
-        for x in win:
-            f.write(str(x) + '\n')
-        f.close()
-
-        f = open('generate_win_graph.gnuplot','w')
-        f.write('set terminal png medium size 640,480\n')
-        f.write('set output "win_graph.png"\n')
-        f.write('set ylabel "Wins"\n')
-        f.write('show ylabel\n')
-        f.write('set grid\n')
-        f.write('set grid noxtics\n')
-        f.write('show grid\n')
-        f.write('set yrange [0:' + str(max(win)+2)  + ']\n')
-        f.write('show yrange\n')
-        f.write('set key off\n')
-        f.write('set boxwidth 1.5 relative\n')
-        f.write('set style fill pattern 2\n')
-        f.write('set title "Wins" font "sans, 14"\n')
-        f.write('show title\n')
-        xtics_str = ""
-        for name in restaurant_list:
-            xtics_str += '"' + name + '" ' + str(restaurant_list.index(name)) + ", "
-        f.write('set xtics (' + xtics_str + ')\n')
-        f.write('plot "win_graph_data.txt" with histogram\n')
-        f.close()
-
-        system('gnuplot generate_win_graph.gnuplot')
-        system('mv win_graph.png images')
-
-    chdir(old_wd)
 
     return render(request, template_name, context)
 
@@ -299,8 +314,8 @@ def voting(request):
     if poll_open_time < now < poll_close_time:
         template_name = 'polls/voting.html'
         total_votes = 0
-        if Ballot.objects.filter(date=date.today()).count() != 0:
-            ballot = Ballot.objects.get(date=date.today())
+        if Ballot.objects.filter(date=now.date()).count() != 0:
+            ballot = Ballot.objects.get(date=now.date())
             for restaurant in ballot.restaurant_set.all():
                 total_votes += restaurant.votes
 
@@ -323,7 +338,7 @@ def feedback_detail(request):
 
     if feedback_open_time < now < feedback_close_time:
         template_name = 'polls/feedback_detail.html'
-        if Ballot.objects.filter(date=date.today()).count() == 0:
+        if Ballot.objects.filter(date=now.date()).count() == 0:
             context = {'error_message': "No vote has been cast. Poll is over, no feedback can be submitted."}
         else:
             context = {'feedback_marks': feedback_marks}
@@ -345,9 +360,9 @@ class VoteHistoryIndexView(generic.ListView):
             minute=poll_time_frame['end']['minute'],
             hour=poll_time_frame['end']['hour'])
         if now > poll_close_time:
-            return Ballot.objects.filter(date__lte=date.today()).order_by('-date')
+            return Ballot.objects.filter(date__lte=now.date()).order_by('-date')
         else:
-            return Ballot.objects.filter(date__lt=date.today()).order_by('-date')
+            return Ballot.objects.filter(date__lt=now.date()).order_by('-date')
 
 
 def vote_result_history(request, ballot_id):
@@ -408,7 +423,7 @@ def statistics(request):
             'name': name.restaurant, 'win': 0, 'parity': 0, 'vote': 0,
             'majority': 0, 'feedback': 0, 'most_rated': 0, 'rand_feedback': 0,
             'rand_no_feedback': 0, 'mark': 0, 'feedback_num': 0
-             } )
+            } )
     for x in stat:
         stat_index[x['name']] = stat.index(x)
 
@@ -416,10 +431,11 @@ def statistics(request):
     poll_close_time = now.replace(microsecond=0, second=0,
         minute=poll_time_frame['end']['minute'],
         hour=poll_time_frame['end']['hour'])
+
     if now > poll_close_time:
-        ballot_dates = Ballot.objects.filter(date__lte=date.today()).order_by('date')
+        ballot_dates = Ballot.objects.filter(date__lte=now.date()).order_by('date')
     else:
-        ballot_dates = Ballot.objects.filter(date__lt=date.today()).order_by('date')
+        ballot_dates = Ballot.objects.filter(date__lt=now.date()).order_by('date')
 
     for ballot in ballot_dates:
         if ballot.winner != '':
@@ -466,7 +482,7 @@ def statistics(request):
 
 
 def vote(request):
-    ballot = Ballot.objects.get(date=date.today())
+    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now).date())
     try:
         selected_restaurant = ballot.restaurant_set.get(pk=request.POST['restaurant'])
     except (KeyError, Restaurant.DoesNotExist):
@@ -485,7 +501,7 @@ def vote(request):
 
 
 def feedback(request):
-    ballot = Ballot.objects.get(date=date.today())
+    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now).date())
     selected_mark = int(request.POST['mark'])
     posted_comment = request.POST['comment']
     restaurant = Ranking.objects.get(restaurant=ballot.winner)
