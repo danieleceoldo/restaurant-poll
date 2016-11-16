@@ -65,7 +65,7 @@ def index(request):
         feedback_graph_stat_mtime = timezone.make_aware(datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))
 
         # Graphs need to be updated if some time has passed
-        if now > feedback_graph_stat_mtime + timedelta(seconds=1):
+        if now > feedback_graph_stat_mtime + timedelta(minutes=10):
 
             # Feedback Graph
             f = open('feedback_graph_data.txt','w')
@@ -568,7 +568,7 @@ def statistics(request):
 
 
 def vote(request):
-    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now).date())
+    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now()).date())
     try:
         selected_restaurant = ballot.restaurant_set.get(pk=request.POST['restaurant'])
     except (KeyError, Restaurant.DoesNotExist):
@@ -587,7 +587,7 @@ def vote(request):
 
 
 def feedback(request):
-    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now).date())
+    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now()).date())
     selected_mark = int(request.POST['mark'])
     posted_comment = request.POST['comment']
     restaurant = Ranking.objects.get(restaurant=ballot.winner)
