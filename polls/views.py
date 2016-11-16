@@ -57,11 +57,10 @@ def index(request):
 
     if ballot_dates.count() != 0 and path.exists('polls/static/polls/'):
 
-        # TODO: race condition when two clients request the same page
         old_wd = getcwd()
         chdir('polls/static/polls/')
 
-        # The image files must ALWAYS be present in the directory
+        # The feedback image file must ALWAYS be present in the directory
         feedback_graph_stat_mtime = timezone.make_aware(datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))
 
         # Graphs need to be updated if some time has passed
@@ -296,7 +295,7 @@ def index(request):
         template_name = 'polls/vote_result.html'
 
         if Ballot.objects.filter(date=now.date()).count() == 0:
-            context = {'error_message': "No vote has been cast. Poll is over, no result is available.",
+            context = {'error_message': 'No vote has been cast. Poll is over, no result is available.',
                     'graphs': graphs}
         else:
             ballot = Ballot.objects.get(date=now.date())
@@ -425,7 +424,7 @@ def feedback_detail(request):
     if feedback_open_time < now < feedback_close_time:
         template_name = 'polls/feedback_detail.html'
         if Ballot.objects.filter(date=now.date()).count() == 0:
-            context = {'error_message': "No vote has been cast. Poll is over, no feedback can be submitted."}
+            context = {'error_message': 'No vote has been cast. Poll is over, no feedback can be submitted.'}
         else:
             context = {'feedback_marks': feedback_marks}
     else:
@@ -568,32 +567,66 @@ def statistics(request):
 
 
 def vote(request):
-    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now()).date())
-    try:
-        selected_restaurant = ballot.restaurant_set.get(pk=request.POST['restaurant'])
-    except (KeyError, Restaurant.DoesNotExist):
-        # Redisplay the question voting form.
-        return render(request, 'polls/vote_detail.html', {
-            'ballot': ballot,
-            'error_message': "You didn't select a restaurant.",
-        })
+    now = timezone.localtime(timezone.now())
+    poll_open_time = now.replace(microsecond=0, second=0,
+        minute=poll_time_frame['start']['minute'],
+        hour=poll_time_frame['start']['hour'])
+    poll_close_time = now.replace(microsecond=0, second=0,
+        minute=poll_time_frame['end']['minute'],
+        hour=poll_time_frame['end']['hour'])
+
+    if (poll_open_time < now < poll_close_time) and (Ballot.objects.all().count() != 0):
+
+        ballot = Ballot.objects.get(date=timezone.localtime(timezone.now()).date())
+        try:
+            selected_restaurant = ballot.restaurant_set.get(pk=request.POST['restaurant'])
+        except (KeyError, Restaurant.DoesNotExist):
+            # Redisplay the question voting form.
+            return render(request, 'polls/vote_detail.html', {
+                'ballot': ballot,
+                'error_message': "You didn't select a restaurant.",
+            })
+        else:
+            selected_restaurant.votes += 1
+            selected_restaurant.save()
+            # Always return an HttpResponseRedirect after successfully dealing
+            # with POST data. This prevents data from being posted twice if a
+            # user hits the Back button.
+            return HttpResponseRedirect(reverse('polls:voting'))
     else:
-        selected_restaurant.votes += 1
-        selected_restaurant.save()
-        # Always return an HttpResponseRedirect after successfully dealing
-        # with POST data. This prevents data from being posted twice if a
-        # user hits the Back button.
-        return HttpResponseRedirect(reverse('polls:voting'))
+        return HttpResponseRedirect(reverse('polls:index'))
 
 
 def feedback(request):
-    ballot = Ballot.objects.get(date=timezone.localtime(timezone.now()).date())
-    selected_mark = int(request.POST['mark'])
-    posted_comment = request.POST['comment']
-    restaurant = Ranking.objects.get(restaurant=ballot.winner)
-    Feedback.objects.create(ballot=ballot, restaurant=restaurant,
-        mark = selected_mark, comment = posted_comment
-    )
+    now = timezone.localtime(timezone.now())
+    feedback_open_time = now.replace(microsecond=0, second=0,
+        minute=feedback_time_frame['start']['minute'],
+        hour=feedback_time_frame['start']['hour'])
+    feedback_close_time = now.replace(microsecond=0, second=0,
+        minute=feedback_time_frame['end']['minute'],
+        hour=feedback_time_frame['end']['hour'])
 
-    return HttpResponseRedirect(reverse('polls:index'))
+    if feedback_open_time < now < feedback_close_time:
+        if Ballot.objects.filter(date=now.date()).count() == 0:
+            return render(request, 'polls/feedback_detail.html', {
+                'error_message': 'No vote has been cast. Poll is over, no feedback can be submitted.'
+            })
+        else:
+            ballot = Ballot.objects.get(date=timezone.localtime(timezone.now()).date())
+            try:
+                selected_mark = int(request.POST['mark'])
+            except:
+                return HttpResponseRedirect(reverse('polls:feedback_detail'))
+            else:
+                posted_comment = request.POST['comment']
+                restaurant = Ranking.objects.get(restaurant=ballot.winner)
+                Feedback.objects.create(ballot=ballot, restaurant=restaurant,
+                    mark = selected_mark, comment = posted_comment
+                )
+                return HttpResponseRedirect(reverse('polls:index'))
+    else:
+        template_name = 'polls/feedback_waiting.html'
+        context = {'feedback_open_time': feedback_open_time,
+                   'feedback_close_time': feedback_close_time}
+        return render(request, template_name, context)
 

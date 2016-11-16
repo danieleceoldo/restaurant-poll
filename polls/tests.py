@@ -197,13 +197,67 @@ class VotingTests(TestCase):
 
 
 
+class VoteTests(TestCase):
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_PollWait)
+    def test_vote_poll_wait(self):
+        response = self.client.get(reverse('polls:vote'))
+        self.assertRedirects(response, reverse('polls:index'))
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
+    def test_vote_poll_open(self):
+        response = self.client.get(reverse('polls:vote'))
+        self.assertRedirects(response, reverse('polls:index'))
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
+    def test_vote_poll_open_2(self):
+        ballot = Ballot.objects.create(date=POLL_DATE)
+        response = self.client.get(reverse('polls:vote'))
+        self.assertTemplateUsed(response, 'polls/vote_detail.html')
+        self.assertEqual(response.context['error_message'], "You didn't select a restaurant.")
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
+    def test_vote_poll_closed(self):
+        response = self.client.get(reverse('polls:vote'))
+        self.assertRedirects(response, reverse('polls:index'))
+
+
+
+class FeedbackTests(TestCase):
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackWait)
+    def test_feedback_poll_wait(self):
+        response = self.client.get(reverse('polls:feedback'))
+        self.assertTemplateUsed(response, 'polls/feedback_waiting.html')
+        self.assertContains(response, 'Feedback can only be submitted from')
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackOpen)
+    def test_feedback_poll_open(self):
+        response = self.client.get(reverse('polls:feedback'))
+        self.assertTemplateUsed(response, 'polls/feedback_detail.html')
+        self.assertEqual(response.context['error_message'], 'No vote has been cast. Poll is over, no feedback can be submitted.')
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackOpen)
+    def test_feedback_poll_open_2(self):
+        ballot = Ballot.objects.create(date=POLL_DATE)
+        response = self.client.get(reverse('polls:feedback'))
+        self.assertRedirects(response, reverse('polls:feedback_detail'))
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackClosed)
+    def test_feedback_poll_closed(self):
+        response = self.client.get(reverse('polls:feedback'))
+        self.assertTemplateUsed(response, 'polls/feedback_waiting.html')
+        self.assertContains(response, 'Feedback can only be submitted from')
+
+
+
 class FeedbackDetailTests(TestCase):
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackWait)
     def test_feedback_detail_wait(self):
         response = self.client.get(reverse('polls:feedback_detail'))
-        self.assertContains(response, 'Feedback can only be submitted from')
         self.assertTemplateUsed(response, 'polls/feedback_waiting.html')
+        self.assertContains(response, 'Feedback can only be submitted from')
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackOpen)
     def test_feedback_detail_open(self):
@@ -493,4 +547,6 @@ class FeedbackHistoryTests(TestCase):
         self.assertContains(response, '<td class="statistics">test_restaurant</td>', html=True)
         self.assertContains(response, '<td class="statistics">1</td>', html=True)
         self.assertContains(response, '<em>test comment</em>', html=True)
+
+
 
