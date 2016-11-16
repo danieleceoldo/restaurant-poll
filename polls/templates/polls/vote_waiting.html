@@ -70,6 +70,10 @@
                     <img src="{% static "polls/images/feedback_sma_graph.png" %}" alt="Simple Moving Average Feedback History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
                 </div>
 
+                {% else %}
+
+                <p><strong>Sorry, calculating graphs. Please wait few seconds.</strong></p>
+
                 {% endif %}
 
             </section>
