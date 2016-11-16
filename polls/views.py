@@ -65,8 +65,9 @@ def index(request):
         feedback_graph_stat_mtime = timezone.make_aware(datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))
 
         # Graphs need to be updated if some time has passed
-        if now > feedback_graph_stat_mtime + timedelta(minutes=10):
+        if now > feedback_graph_stat_mtime + timedelta(seconds=1):
 
+            # Feedback Graph
             f = open('feedback_graph_data.txt','w')
             for name in Ranking.objects.all():
                 f.write('# ' + str(name.restaurant) + '\n')
@@ -101,6 +102,8 @@ def index(request):
             system('gnuplot generate_feedback_graph.gnuplot')
             system('mv feedback_graph.png images')
 
+
+            # Win History Graph
             restaurant_list = []
             for name in Ranking.objects.all():
                 restaurant_list.append(name.restaurant)
@@ -137,6 +140,8 @@ def index(request):
             system('gnuplot generate_win_history_graph.gnuplot')
             system('mv win_history_graph.png images')
 
+
+            # Win Graph
             win = []
             for x in restaurant_list:
                 win.append(0)
@@ -173,6 +178,87 @@ def index(request):
 
             system('gnuplot generate_win_graph.gnuplot')
             system('mv win_graph.png images')
+
+
+            # Linear Weighted Simple Moving Average Feedback Graph
+            samples = 30
+            f = open('feedback_lwsma_graph_data.txt','w')
+            for name in Ranking.objects.all():
+                f.write('# ' + str(name.restaurant) + '\n')
+                for ballot in ballot_dates:
+                    mark_lwsma = 0
+                    sample_num = samples
+                    for ballot_filt in ballot_dates.filter(date__lte=ballot.date).order_by('-date')[:samples]:
+                        if ballot_filt.winner == name.restaurant:
+                            for feedback in ballot_filt.feedback_set.all():
+                                mark_lwsma += feedback.mark * sample_num / samples
+                        sample_num -= 1
+                    f.write(str(mark_lwsma) + '\n')
+                f.write('\n\n')
+            f.close()
+
+            f = open('generate_feedback_lwsma_graph.gnuplot','w')
+            f.write('set terminal png medium size 640,480\n')
+            f.write('set output "feedback_lwsma_graph.png"\n')
+            f.write('set xlabel "Days"\n')
+            f.write('show xlabel\n')
+            f.write('set ylabel "Mark"\n')
+            f.write('show ylabel\n')
+            f.write('set grid\n')
+            f.write('show grid\n')
+            f.write('set key left top\n')
+            f.write('show key\n')
+            f.write('set title "Linear Weighted Simple Moving Average Feedback History" font "sans, 14"\n')
+            f.write('show title\n')
+            plot_str = ""
+            for name in Ranking.objects.all():
+                plot_str += ' "feedback_lwsma_graph_data.txt" index "' + name.restaurant + '" with lines title "' + name.restaurant + '" linewidth 3,'
+            f.write('plot' + plot_str + '\n')
+            f.close()
+
+            system('gnuplot generate_feedback_lwsma_graph.gnuplot')
+            system('mv feedback_lwsma_graph.png images')
+
+
+            # Simple Moving Average Feedback Graph
+            samples = 30
+            f = open('feedback_sma_graph_data.txt','w')
+            for name in Ranking.objects.all():
+                f.write('# ' + str(name.restaurant) + '\n')
+                for ballot in ballot_dates:
+                    mark_lwsma = 0
+                    sample_num = samples
+                    for ballot_filt in ballot_dates.filter(date__lte=ballot.date).order_by('-date')[:samples]:
+                        if ballot_filt.winner == name.restaurant:
+                            for feedback in ballot_filt.feedback_set.all():
+                                mark_lwsma += feedback.mark
+                        sample_num -= 1
+                    f.write(str(mark_lwsma) + '\n')
+                f.write('\n\n')
+            f.close()
+
+            f = open('generate_feedback_sma_graph.gnuplot','w')
+            f.write('set terminal png medium size 640,480\n')
+            f.write('set output "feedback_sma_graph.png"\n')
+            f.write('set xlabel "Days"\n')
+            f.write('show xlabel\n')
+            f.write('set ylabel "Mark"\n')
+            f.write('show ylabel\n')
+            f.write('set grid\n')
+            f.write('show grid\n')
+            f.write('set key left top\n')
+            f.write('show key\n')
+            f.write('set title "Simple Moving Average Feedback History" font "sans, 14"\n')
+            f.write('show title\n')
+            plot_str = ""
+            for name in Ranking.objects.all():
+                plot_str += ' "feedback_sma_graph_data.txt" index "' + name.restaurant + '" with lines title "' + name.restaurant + '" linewidth 3,'
+            f.write('plot' + plot_str + '\n')
+            f.close()
+
+            system('gnuplot generate_feedback_sma_graph.gnuplot')
+            system('mv feedback_sma_graph.png images')
+
 
         chdir(old_wd)
 

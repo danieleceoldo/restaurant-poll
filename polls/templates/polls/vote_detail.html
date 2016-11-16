@@ -58,6 +58,8 @@
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'feedback_history')" id="defaultOpen">Feedback History</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'win_history')">Win History</a></li>
                     <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'wins')">Wins</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'feedback_lwsma')">LWSMA</a></li>
+                    <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'feedback_sma')">SMA</a></li>
                 </ul>
 
                 {% load static %}
@@ -72,6 +74,14 @@
 
                 <div id="wins" class="tabcontent">
                     <img src="{% static "polls/images/win_graph.png" %}" alt="Wins" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
+                </div>
+
+                <div id="feedback_lwsma" class="tabcontent">
+                    <img src="{% static "polls/images/feedback_lwsma_graph.png" %}" alt="Linear Weighted Simple Moving Average Feedback History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
+                </div>
+
+                <div id="feedback_sma" class="tabcontent">
+                    <img src="{% static "polls/images/feedback_sma_graph.png" %}" alt="Simple Moving Average Feedback History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
                 </div>
 
                 {% endif %}
