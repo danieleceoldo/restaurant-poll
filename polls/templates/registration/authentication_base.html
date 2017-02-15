@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <title>
+            {% block title %}Authentication{% endblock %}
+        </title>
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                {% block header %}Authentication{% endblock %}
+            </h1>
+        </header>
+
+        <div class="frame">
+            <nav class="bar_left">
+                {% block nav_bar_left %}
+                <p><a href="{% url 'polls:index' %}">Back</a></p>
+                {% endblock %}
+            </nav>
+            <nav class="bar_right">
+                {% block nav_bar_right %}
+                <p><a href="{% url 'polls:index' %}">Back</a></p>
+                {% endblock %}
+            </nav>
+        {% if stat %}
+            <nav class="bar_center">
+                {% block nav_bar_center %}
+                <p>from {{ from_ballot_date }} to {{ to_ballot_date }}</p>
+                {% endblock %}
+            </nav>
+        {% endif %}
+        </div>
+
+        <div class="frame">
+            <section style="padding: 1em; width: 100%;">
+
+                {% block section %}{% endblock %}
+
+            </section>
+
+        </div>
+
+    </body>
+
+</html>

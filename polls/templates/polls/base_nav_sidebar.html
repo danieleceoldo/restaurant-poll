@@ -1,0 +1,46 @@
+{% extends "polls/base.html" %}
+
+{% block title %}{% now "N d, o" %}{% endblock %}
+
+{% block head %}
+<meta http-equiv="refresh" content="{% block refresh_time %}60{% endblock %}">
+{% endblock %}
+
+{% block header %}{% now "N d, o" %}{% endblock %}
+
+{% block nav_bar_left %}
+<p>&nbsp;</p>
+{% endblock %}
+
+{% block nav_bar_right %}
+<p>&nbsp;</p>
+{% endblock %}
+
+{% block nav_bar_center %}
+<p>Current Local Time: {% now "H:i" %}</p>
+{% endblock %}
+
+{% block section_style %}style="width:70%;"{% endblock %}
+
+{% block section %}{% endblock %}
+
+{% block nav_tag %}
+<nav class="aside">
+    <p><a href="{% url 'polls:index' %}">Home</a></p>
+    <p><a href="{% url 'polls:statistics' %}">Statistics</a></p>
+    <p><a href="{% url 'polls:vote_history_index' %}">Vote History</a></p>
+    <p><a href="{% url 'polls:feedback_history' %}">Feedback History</a></p>
+    {% block nav_aside %}{% endblock %}
+</nav>
+{% endblock %}
+
+{% block footer_bar_left %}
+<p>&nbsp;</p>
+{% endblock %}
+
+{% block footer_bar_right %}
+<p>&nbsp;</p>
+{% endblock %}
+
+{% block footer_bar_center %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "registration/authentication_base.html" %}
+
+{% block title %}
+
+    {{ block.super }} Login
+
+{% endblock %}
+
+{% block header %}
+
+    {{ block.super }} Login
+
+{% endblock %}
+
+{% block section %}
+
+    <br>
+
+    <form method="post" action="{% url 'login' %}">
+    {% csrf_token %}
+
+    {{ form }}
+
+    <br> <br>
+    <input type="submit" value="Login" />
+    </form>
+
+    <br>
+
+{% endblock %}

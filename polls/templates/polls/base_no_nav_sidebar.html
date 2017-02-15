@@ -1,0 +1,33 @@
+{% extends "polls/base.html" %}
+
+{% block title %}{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block nav_bar_left %}
+<p><a href="{% url 'polls:index' %}">Back</a></p>
+{% endblock %}
+
+{% block nav_bar_right %}
+<p><a href="{% url 'polls:index' %}">Back</a></p>
+{% endblock %}
+
+{% block nav_bar_center %}
+<p>&nbsp;</p>
+{% endblock %}
+
+{% block section_style %}style="width:100%;"{% endblock %}
+
+{% block section %}{% endblock %}
+
+{% block footer_bar_left %}
+<p><a href="{% url 'polls:index' %}">Back</a></p>
+{% endblock %}
+
+{% block footer_bar_right %}
+<p><a href="{% url 'polls:index' %}">Back</a></p>
+{% endblock %}
+
+{% block footer_bar_center %}
+<p>&nbsp;</p>
+{% endblock %}

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <title>
+            {% block title %}{% endblock %}
+        </title>
+        {% block head %}{% endblock %}
+        {% load static %}
+        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
+    </head>
+
+    <body>
+        <header>
+            <h1>
+                {% block header %}{% endblock %}
+            </h1>
+        </header>
+
+        <div class="frame">
+            <nav class="bar_left">
+                {% block nav_bar_left %}
+                {% endblock %}
+            </nav>
+            <nav class="bar_right">
+                {% block nav_bar_right %}
+                {% endblock %}
+            </nav>
+            <nav class="bar_center">
+                {% block nav_bar_center %}
+                {% endblock %}
+            </nav>
+        </div>
+
+        <div class="frame">
+
+            <section {% block section_style %}{% endblock %}>
+                {% block section %}{% endblock %}
+            </section>
+
+            {% block nav_tag %}{% endblock %}
+
+        </div>
+
+        <div class="frame">
+            <footer class="bar_left">
+                {% block footer_bar_left %}
+                {% endblock %}
+            </footer>
+            <footer class="bar_right">
+                {% block footer_bar_right %}
+                {% endblock %}
+            </footer>
+            <footer class="bar_center">
+                {% block footer_bar_center %}
+                {% endblock %}
+            </footer>
+        </div>
+
+        {% block body %}{% endblock %}
+
+    </body>
+</html>
