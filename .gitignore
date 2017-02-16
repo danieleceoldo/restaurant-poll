@@ -87,3 +87,12 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+
+# restaurant-poll project specific files
+*.un~
+db.sqlite3
+polls/static/polls/images/*.png
+polls/static/polls/*.gnuplot
+polls/static/polls/*.txt
+polls/migrations/*.py
