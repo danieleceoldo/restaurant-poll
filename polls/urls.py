@@ -1,11 +1,10 @@
 from django.conf.urls import url
-
 from . import views
 
 app_name = 'polls'
 urlpatterns = [
     url(r'^$', views.index, name='index'),
-    url(r'^voting/$', views.voting, name='voting'),
+    url(r'^vote_detail/$', views.vote_detail, name='vote_detail'),
     url(r'^feedback_detail/$', views.feedback_detail, name='feedback_detail'),
     url(r'^vote_history_index/$', views.VoteHistoryIndexView.as_view(), name='vote_history_index'),
     url(r'^feedback_history/$', views.FeedbackHistoryView.as_view(), name='feedback_history'),

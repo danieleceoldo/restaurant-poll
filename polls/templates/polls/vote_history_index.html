@@ -1,85 +1,52 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>
-            Vote History Index
-        </title>
-        <meta http-equiv="refresh" content="60">
-        {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
-    </head>
-    <body>
-        <header>
-            <h1>
-                Vote History Index
-            </h1>
-        </header>
+{% extends "polls/base_no_nav_sidebar.html" %}
 
-        <div class="frame">
-            <nav class="bar_left">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </nav>
-            <nav class="bar_right">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </nav>
-            <nav class="bar_center">
-                <p>&nbsp;</p>
-            </nav>
-        </div>
+{% block title %}
+    Vote History Index
+{% endblock %}
 
-        <div class="frame">
-            <section style="width: 100%;">
-                {% if ballot_list %}
+{% block header %}
+    Vote History Index
+{% endblock %}
 
-                    <table class="result" style="padding-left:3em; padding-top: 1em; padding-bottom: 2em">
-                        <tr>
-                            <th style="padding-right: 5em;
-                                       padding-bottom: 1em;">
-                                Date
-                            </th>
-                            <th style="padding-right: 5em;
-                                       padding-bottom: 1em;">
-                                Winner
-                            </th>
-                            <th style="padding-right: 5em;
-                                       padding-bottom: 1em;">
-                                Victory Cause
-                            </th>
-                        </tr>
-                    {% for ballot in ballot_list %}
-                         <tr>
-                            <td style="padding-right: 5em;
-                                       padding-bottom: 0.2em;">
-                                <a href="{% url 'polls:vote_result_history' ballot.id %}">{{ ballot.date }}</a>
-                            </td>
-                            <td style="padding-right:5em">
-                                {{ ballot.winner }}
-                            </td>
-                            <td style="padding-right:5em">
-                                {{ ballot.win_cause }}
-                            </td>
-                        </tr>
-                    {% endfor %}
-                    </table>
+{% block section %}
 
-                {% else %}
+    {% if ballot_list %}
 
-                    <p>No polls are available.</p>
+        <table class="result" style="padding-left:3em; padding-top: 1em; padding-bottom: 2em">
+            <tr>
+                <th style="padding-right: 5em;
+                           padding-bottom: 1em;">
+                    Date
+                </th>
+                <th style="padding-right: 5em;
+                           padding-bottom: 1em;">
+                    Winner
+                </th>
+                <th style="padding-right: 5em;
+                           padding-bottom: 1em;">
+                    Victory Cause
+                </th>
+            </tr>
+        {% for ballot in ballot_list %}
+             <tr>
+                <td style="padding-right: 5em;
+                           padding-bottom: 0.2em;">
+                    <a href="{% url 'polls:vote_result_history' ballot.id %}">{{ ballot.date }}</a>
+                </td>
+                <td style="padding-right:5em">
+                    {{ ballot.winner }}
+                </td>
+                <td style="padding-right:5em">
+                    {{ ballot.win_cause }}
+                </td>
+            </tr>
+        {% endfor %}
+        </table>
 
-                {% endif %}
-            </section>
-        </div>
+    {% else %}
 
-        <div class="frame">
-            <footer class="bar_left">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </footer>
-            <footer class="bar_right">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </footer>
-            <footer class="bar_center">
-                <p>&nbsp;</p>
-            </footer>
-        </div>
-    </body>
-</html>
+        <p>No polls are available.</p>
+
+    {% endif %}
+
+{% endblock %}

@@ -1,67 +1,58 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>
-            {{ ballot.date }}
-        </title>
-        {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
-    </head>
+{% extends "polls/base_no_nav_sidebar.html" %}
 
-    <body>
-        <header>
-            <h1>
-                {{ ballot.date }}
-            </h1>
-        </header>
+{% block title %}
+    {{ ballot.date }}
+{% endblock %}
 
-        <div class="frame">
-            <nav class="bar_left">
-                <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
-            </nav>
-            <nav class="bar_right">
-                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Next</a></p>
-            </nav>
-            <nav class="bar_center">
-                <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
-            </nav>
-        </div>
+{% block header %}
+    {{ ballot.date }}
+{% endblock %}
 
-        <div class="frame">
-            <section style="border:none">
+{% block nav_bar_left %}
+    <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
+{% endblock %}
 
-                <h2>The Winner is: {{ ballot.winner }}</h2>
+{% block nav_bar_right %}
+    <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Next</a></p>
+{% endblock %}
 
-                <h3>Total votes: {{ total_votes }}</h3>
+{% block nav_bar_center %}
+    <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
+{% endblock %}
 
-                <table class="result">
-                {% for restaurant in result_detail %}
-                    <tr>
-                        <td style="padding-right:5em">
-                        {{ restaurant.name }}</td>
-                        <td style="padding-right:1em">
-                        {{ restaurant.votes }}</td>
-                        <td>vote{{ restaurant.votes|pluralize }}</td>
-                    </tr>
-                {% endfor %}
-                </table>
 
-                <br>
-                <p>Victory cause: <strong>{{ ballot.win_cause }}</strong></p>
-                <br>
-            </section>
-        </div>
+{% block section %}
 
-        <div class="frame">
-            <footer class="bar_left">
-                <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
-            </footer>
-            <footer class="bar_right">
-                <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Next</a></p>
-            </footer>
-            <footer class="bar_center">
-                <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
-            </footer>
-        </div>
-    </body>
-</html>
+    <h2>The Winner is: {{ ballot.winner }}</h2>
+
+    <h3>Total votes: {{ total_votes }}</h3>
+
+    <table class="result">
+    {% for restaurant in result_detail %}
+        <tr>
+            <td style="padding-right:5em">
+            {{ restaurant.name }}</td>
+            <td style="padding-right:1em">
+            {{ restaurant.votes }}</td>
+            <td>vote{{ restaurant.votes|pluralize }}</td>
+        </tr>
+    {% endfor %}
+    </table>
+
+    <br>
+    <p>Victory cause: <strong>{{ ballot.win_cause }}</strong></p>
+    <br>
+
+{% endblock %}
+
+{% block footer_bar_left %}
+    <p><a href="{% url 'polls:vote_result_history_prev' ballot.id %}">Prev.</a></p>
+{% endblock %}
+
+{% block footer_bar_right %}
+    <p><a href="{% url 'polls:vote_result_history_next' ballot.id %}">Next</a></p>
+{% endblock %}
+
+{% block footer_bar_center %}
+    <p><a href="{% url 'polls:vote_history_index' %}">Index</a></p>
+{% endblock %}

@@ -40,19 +40,21 @@ def MockedTimezoneNow_FeedbackClosed():
 class IndexTests(TestCase):
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollWait)
-    def test_index_poll_closed(self):
+    def test_index_poll_wait(self):
         response = self.client.get(reverse('polls:index'))
         self.assertContains(response, '<p>Waiting for poll.</p>', html=True)
 
+    '''
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
     def test_index_poll_open(self):
         response = self.client.get(reverse('polls:index'))
         self.assertContains(response, '<input type="submit" value="Vote" />', html=True)
+    '''
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_no_cast(self):
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<strong>No vote has been cast. Poll is over, no result is available.</strong>', html=True)
+        self.assertContains(response, '<p>No vote has been cast. Poll is over, no result is available.</p>', html=True)
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_winner(self):
@@ -100,6 +102,7 @@ class IndexTests(TestCase):
         self.assertContains(response, '<h3>Total votes: 3</h3>', html=True)
         self.assertContains(response, '<p>Victory cause: <strong>Majority Vote</strong></p>', html=True)
 
+    '''
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_best_feedb(self):
         ballot = Ballot.objects.create(date=POLL_DATE)
@@ -130,6 +133,8 @@ class IndexTests(TestCase):
         self.assertContains(response, '<h2>The Winner is: test_restaurant_1</h2>', html=True)
         self.assertContains(response, '<h3>Total votes: 2</h3>', html=True)
         self.assertContains(response, '<p>Victory cause: <strong>Best Feedback</strong></p>', html=True)
+    '''
+  
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_most_rated(self):
@@ -178,6 +183,7 @@ class IndexTests(TestCase):
 
 
 
+'''
 class VotingTests(TestCase):
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollWait)
@@ -194,6 +200,7 @@ class VotingTests(TestCase):
     def test_voting_poll_closed(self):
         response = self.client.get(reverse('polls:voting'))
         self.assertRedirects(response, reverse('polls:index'))
+'''
 
 
 

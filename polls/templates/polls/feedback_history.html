@@ -1,70 +1,35 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>
-            Feedback History
-        </title>
-        {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
-    </head>
+{% extends "polls/base_no_nav_sidebar.html" %}
 
-    <body>
-        <header>
-            <h1>
-                Feedback History
-            </h1>
-        </header>
+{% block title %}
+    Feedback History
+{% endblock %}
 
-        <div class="frame">
-            <nav class="bar_left">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </nav>
-            <nav class="bar_right">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </nav>
-            <nav class="bar_center">
-                <p>&nbsp;</p>
-            </nav>
-        </div>
+{% block header %}
+    Feedback History
+{% endblock %}
 
-        <div class="frame">
-            <section style="padding-top: 2em;
-                            padding-bottom: 2em;
-                            width: 100%;">
-            {% if feedback_list %}
-                <table class="statistics" style="width: 95%;">
-                    <tr style="background-color: #dddddd;">
-                        <th class="statistics" style="text-align: left;padding:1em;">Date</th>
-                        <th class="statistics">Restaurant</th>
-                        <th class="statistics">Mark</th>
-                    </tr>
-                {% for feedback in feedback_list %}
-                    <tr>
-                        <td  class="statistics"style="text-align: left"><strong>{{ feedback.ballot.date }}</strong></td>
-                        <td class="statistics">{{ feedback.ballot.winner }}</td>
-                        <td class="statistics">{{ feedback.mark }}</td>
-                    </tr>
-                    <tr style="border-bottom: 1pt solid black;">
-                        <td class="statistics" colspan="3" style="text-align: left; padding-bottom: 1em;"><em>{{ feedback.comment }}</em></td>
-                    </tr>
-                {% endfor %}
-                </table>
-            {% else %}
-                <p>No feedback available.</p>
-            {% endif %}
-            </section>
-        </div>
+{% block section %}
 
-        <div class="frame">
-            <footer class="bar_left">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </footer>
-            <footer class="bar_right">
-                <p><a href="{% url 'polls:index' %}">Back</a></p>
-            </footer>
-            <footer class="bar_center">
-                <p>&nbsp;</p>
-            </footer>
-        </div>
-    </body>
-</html>
+    {% if feedback_list %}
+        <table class="statistics" style="width: 95%;">
+            <tr style="background-color: #dddddd;">
+                <th class="statistics" style="text-align: left;padding:1em;">Date</th>
+                <th class="statistics">Restaurant</th>
+                <th class="statistics">Mark</th>
+            </tr>
+        {% for feedback in feedback_list %}
+            <tr>
+                <td  class="statistics"style="text-align: left"><strong>{{ feedback.ballot.date }}</strong></td>
+                <td class="statistics">{{ feedback.ballot.winner }}</td>
+                <td class="statistics">{{ feedback.mark }}</td>
+            </tr>
+            <tr style="border-bottom: 1pt solid black;">
+                <td class="statistics" colspan="3" style="text-align: left; padding-bottom: 1em;"><em>{{ feedback.comment }}</em></td>
+            </tr>
+        {% endfor %}
+        </table>
+    {% else %}
+        <p>No feedback available.</p>
+    {% endif %}
+
+{% endblock %}

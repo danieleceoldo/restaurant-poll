@@ -15,4 +15,4 @@ for f in Feedback.objects.all():
     print(f, f.id, f.ballot, f.restaurant, f.mark, f.comment)
 
 for r in Ranking.objects.all():
-    print(r, r.id, r.restaurant)
+    print(r, r.id, r.restaurant, r.lwsma_feedback)

@@ -1,127 +1,37 @@
-<!DOCTYPE html>
-<html>
-    <head>
-        <title>
-            {% now "N d, o" %}
-        </title>
-        <meta http-equiv="refresh" content="60">
-        {% load static %}
-        <link rel="stylesheet" type="text/css" href="{% static 'polls/styles.css' %}" />
-    </head>
-    <body>
-        <header>
-            <h1>
-                {% now "N d, o" %}
-            </h1>
-        </header>
+{% extends "polls/base_nav_sidebar.html" %}
 
-        <div class="frame">
-            <nav class="bar_left">
-                <p>&nbsp;</p>
-            </nav>
-            <nav class="bar_right">
-                <p>&nbsp;</p>
-            </nav>
-            <nav class="bar_center">
-                <p>
-                   Current Local Time: {% now "H:i" %}
-                </p>
-            </nav>
-        </div>
 
-        <div class="frame">
-            <section>
+{% block section %}
 
-                {% if error_message %}
-                    <p><strong>{{ error_message }}</strong></p>
-                {% endif %}
+{% if error_message %}
+    <p><strong>{{ error_message }}</strong></p>
+{% endif %}
 
-                <div style="border: 1px solid black;
-                            padding: 2em;
-                            padding-left: 3em;">
-                    <form action="{% url 'polls:vote' %}" method="post">
-                    {% csrf_token %}
-                    {% for restaurant in ballot.restaurant_set.all %}
-                        <input type="radio" name="restaurant" id="restaurant{{ forloop.counter }}" value="{{ restaurant.id }}" />
-                        <label for="restaurant{{ forloop.counter }}">{{ restaurant.name }}</label><br />
-                    {% endfor %}
-                    <br>
-                    <input type="submit" value="Vote" />
-                    </form>
-                </div>
+<div style="border: 1px solid black;
+            padding: 2em;
+            padding-left: 3em;">
 
-                <br>
+    <form action="{% url 'polls:vote' %}" method="post">
 
-                {% if graphs %}
+        {% csrf_token %}
 
-                <ul class="tab">
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'feedback_history')" id="defaultOpen">Feedback History</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'win_history')">Win History</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'wins')">Wins</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'feedback_lwsma')">LWSMA</a></li>
-                    <li><a href="javascript:void(0)" class="tablinks" onclick="openCity(event, 'feedback_sma')">SMA</a></li>
-                </ul>
+        {% for restaurant in ballot.restaurant_set.all %}
+            <input type="radio" name="restaurant" id="restaurant{{ forloop.counter }}" value="{{ restaurant.id }}" />
+            <label for="restaurant{{ forloop.counter }}">{{ restaurant.name }}</label><br />
+        {% endfor %}
 
-                {% load static %}
+        <br>
+        <input type="submit" value="Vote" />
 
-                <div id="feedback_history" class="tabcontent">
-                    <img src="{% static "polls/images/feedback_graph.png" %}" alt="Feedback History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
-                </div>
+    </form>
 
-                <div id="win_history" class="tabcontent">
-                    <img src="{% static "polls/images/win_history_graph.png" %}" alt="Win History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
-                </div>
+</div>
 
-                <div id="wins" class="tabcontent">
-                    <img src="{% static "polls/images/win_graph.png" %}" alt="Wins" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
-                </div>
+{% endblock %}
 
-                <div id="feedback_lwsma" class="tabcontent">
-                    <img src="{% static "polls/images/feedback_lwsma_graph.png" %}" alt="Linear Weighted Simple Moving Average Feedback History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
-                </div>
 
-                <div id="feedback_sma" class="tabcontent">
-                    <img src="{% static "polls/images/feedback_sma_graph.png" %}" alt="Simple Moving Average Feedback History" style="display: block; margin: 0 auto; margin-top: 20px; margin-bottom: 20px"/>
-                </div>
+{% block footer_bar_center %}
 
-                {% else %}
+<p><em>Poll closes at {{ poll_close_time|time:"H:i" }} local time.</em></p>
 
-                {% if not error_message %}
-
-                <p><strong>Sorry, calculating graphs. Please wait few seconds.</strong></p>
-
-                {% endif %}
-
-                {% endif %}
-
-            </section>
-            <nav class="aside">
-                <p><a href="{% url 'polls:voting' %}">
-                Turnout</a></p>
-                <p><a href="{% url 'polls:statistics' %}">
-                Statistics</a></p>
-                <p><a href="{% url 'polls:vote_history_index' %}">
-                Vote History</a></p>
-                <p><a href="{% url 'polls:feedback_history' %}">
-                Feedback History</a></p>
-            </nav>
-        </div>
-
-        <div class="frame">
-            <footer class="bar_left">
-                <p>&nbsp;</p>
-            </footer>
-            <footer class="bar_right">
-                <p>&nbsp;</p>
-            </footer>
-            <footer class="bar_center">
-                <p><em>
-                Poll closes at {{ poll_close_time|time:"H:i" }} local time.
-                </em></p>
-            </footer>
-        </div>
-
-        <script src="{% static 'polls/tab_script.js' %}"></script>
-
-    </body>
-</html>
+{% endblock %}

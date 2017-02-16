@@ -17,6 +17,8 @@ from .models import Ballot, Restaurant, Feedback, Ranking
 
 from os import system, path, chdir, getcwd, stat
 
+from django.contrib.auth.decorators import login_required
+
 
 poll_restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
 
@@ -49,11 +51,17 @@ def index(request):
     poll_close_time = now.replace(microsecond=0, second=0,
         minute=poll_time_frame['end']['minute'],
         hour=poll_time_frame['end']['hour'])
+    feedback_close_time = now.replace(microsecond=0, second=0,
+        minute=feedback_time_frame['end']['minute'],
+        hour=feedback_time_frame['end']['hour'])
 
-    if now > poll_close_time:
+    if now > feedback_close_time:
         ballot_dates = Ballot.objects.filter(date__lte=now.date()).order_by('date')
     else:
         ballot_dates = Ballot.objects.filter(date__lt=now.date()).order_by('date')
+
+
+    # Graph generation
 
     if ballot_dates.count() != 0 and path.exists('polls/static/polls/'):
 
@@ -64,7 +72,7 @@ def index(request):
         feedback_graph_stat_mtime = timezone.make_aware(datetime.fromtimestamp(stat('images/feedback_graph.png').st_ctime))
 
         # Graphs need to be updated if some time has passed
-        if now > feedback_graph_stat_mtime + timedelta(minutes=10):
+        if now > feedback_graph_stat_mtime + timedelta(minutes=1):
 
             # Feedback Graph
             f = open('feedback_graph_data.txt','w')
@@ -194,6 +202,8 @@ def index(request):
                         sample_num -= 1
                     f.write(str(mark_lwsma) + '\n')
                 f.write('\n\n')
+                name.lwsma_feedback = mark_lwsma
+                name.save()
             f.close()
 
             f = open('generate_feedback_lwsma_graph.gnuplot','w')
@@ -267,12 +277,18 @@ def index(request):
 
         graphs = False
 
+
+    # View decision
+
+    # Check whether we need to wait for todays' poll
     if now < poll_open_time:
-        template_name = 'polls/vote_waiting.html'
-        context = {'poll_open_time': poll_open_time,
+
+        context = {'poll_waiting': True,
+                   'poll_open_time': poll_open_time,
                    'poll_close_time': poll_close_time,
                    'graphs': graphs}
 
+    # Check whether poll is open
     elif now < poll_close_time:
 
         for restaurant in poll_restaurant_list:
@@ -281,24 +297,34 @@ def index(request):
 
         if Ballot.objects.filter(date=now.date()).count() == 0:
             ballot = Ballot.objects.create(date = now.date())
-            for restaurant in poll_restaurant_list:
-                Restaurant.objects.create(ballot = ballot, name = restaurant)
+            for ranking in Ranking.objects.all():
+                Restaurant.objects.create(ballot=ballot,
+                        name=ranking.restaurant)
         else:
             ballot = Ballot.objects.get(date=now.date())
 
-        template_name = 'polls/vote_detail.html'
-        context = {'ballot': ballot,
+        total_votes = 0
+        for restaurant in ballot.restaurant_set.all():
+            total_votes += restaurant.votes
+
+        context = {'poll_open': True,
+                   'ballot': ballot,
+                   'total_votes': total_votes,
                    'poll_close_time': poll_close_time,
                    'graphs': graphs}
 
+    # Otherwise the time for poll is over for today
     else:
-        template_name = 'polls/vote_result.html'
 
+        # Check if the ballot has been created
         if Ballot.objects.filter(date=now.date()).count() == 0:
-            context = {'error_message': 'No vote has been cast. Poll is over, no result is available.',
-                    'graphs': graphs}
+            context = {'poll_void': True,
+                       'graphs': graphs}
         else:
             ballot = Ballot.objects.get(date=now.date())
+
+
+            # Winner decision
 
             if ballot.winner == "":
                 win_name = []
@@ -318,16 +344,13 @@ def index(request):
                     selected = []
                     for name in win_name:
                         restaurant = Ranking.objects.get(restaurant=name)
-                        name_mark = 0
-                        for feedback in restaurant.feedback_set.all():
-                            name_mark += feedback.mark
                         if len(selected) == 0:
                             selected = [name]
-                            max_mark = name_mark
-                        elif name_mark > max_mark:
+                            best_feedback = restaurant.lwsma_feedback
+                        elif restaurant.lwsma_feedback > best_feedback:
                             selected = [name]
-                            max_mark = name_mark
-                        elif name_mark == max_mark:
+                            best_feedback = restaurant.lwsma_feedback
+                        elif restaurant.lwsma_feedback == best_feedback:
                             selected.append(name)
                     if len(selected) == 1:
                         ballot.winner = selected[0]
@@ -357,6 +380,7 @@ def index(request):
             for restaurant in ballot.restaurant_set.all():
                 total_votes += restaurant.votes
 
+            # Check if any vote has been cast in case delete the ballot
             if total_votes == 0:
                 ballot.delete()
                 return HttpResponseRedirect(reverse('polls:index'))
@@ -373,7 +397,8 @@ def index(request):
                 minute=feedback_time_frame['end']['minute'],
                 hour=feedback_time_frame['end']['hour'])
 
-            context = {'ballot': ballot,
+            context = {'poll_closed': True,
+                       'ballot': ballot,
                        'total_votes': total_votes,
                        'total_marks': total_marks,
                        'feedback_num': feedback_num,
@@ -384,10 +409,12 @@ def index(request):
                        'graphs': graphs}
 
 
-    return render(request, template_name, context)
+    return render(request, 'polls/index.html', context)
 
 
-def voting(request):
+
+#@login_required
+def vote_detail(request):
     now = timezone.localtime(timezone.now())
     poll_open_time = now.replace(microsecond=0, second=0,
         minute=poll_time_frame['start']['minute'],
@@ -397,21 +424,18 @@ def voting(request):
         hour=poll_time_frame['end']['hour'])
 
     if poll_open_time < now < poll_close_time:
-        template_name = 'polls/voting.html'
-        total_votes = 0
-        if Ballot.objects.filter(date=now.date()).count() != 0:
+
+        if Ballot.objects.filter(date=now.date()).count() == 1:
             ballot = Ballot.objects.get(date=now.date())
-            for restaurant in ballot.restaurant_set.all():
-                total_votes += restaurant.votes
+            context = {'ballot': ballot,
+                       'poll_close_time': poll_close_time}
+            return render(request, 'polls/vote_detail.html', context)
 
-        context = {'poll_close_time': poll_close_time,
-                   'total_votes': total_votes}
-
-        return render(request, template_name, context)
-    else:
-        return HttpResponseRedirect(reverse('polls:index'))
+    return HttpResponseRedirect(reverse('polls:index'))
 
 
+
+#@login_required
 def feedback_detail(request):
     now = timezone.localtime(timezone.now())
     feedback_open_time = now.replace(microsecond=0, second=0,
@@ -435,6 +459,7 @@ def feedback_detail(request):
     return render(request, template_name, context)
 
 
+
 class VoteHistoryIndexView(generic.ListView):
     template_name = 'polls/vote_history_index.html'
     context_object_name = 'ballot_list'
@@ -448,6 +473,7 @@ class VoteHistoryIndexView(generic.ListView):
             return Ballot.objects.filter(date__lte=now.date()).order_by('-date')
         else:
             return Ballot.objects.filter(date__lt=now.date()).order_by('-date')
+
 
 
 def vote_result_history(request, ballot_id):
@@ -466,6 +492,8 @@ def vote_result_history(request, ballot_id):
             }
     return render(request, template_name, context)
 
+
+
 def vote_result_history_prev(request, ballot_id):
     ballot_id_list = []
     for ballot in Ballot.objects.all():
@@ -477,6 +505,8 @@ def vote_result_history_prev(request, ballot_id):
         new_ballot_id = ballot_id_list[curr_pos  - 1]
     return HttpResponseRedirect(reverse('polls:vote_result_history',
         args=(new_ballot_id,)))
+
+
 
 def vote_result_history_next(request, ballot_id):
     ballot_id_list = []
@@ -498,6 +528,7 @@ class FeedbackHistoryView(generic.ListView):
 
     def get_queryset(self):
         return Feedback.objects.all().order_by('-id')
+
 
 
 def statistics(request):
@@ -566,6 +597,8 @@ def statistics(request):
     return render(request, 'polls/statistics.html', context)
 
 
+
+#@login_required
 def vote(request):
     now = timezone.localtime(timezone.now())
     poll_open_time = now.replace(microsecond=0, second=0,
@@ -592,11 +625,13 @@ def vote(request):
             # Always return an HttpResponseRedirect after successfully dealing
             # with POST data. This prevents data from being posted twice if a
             # user hits the Back button.
-            return HttpResponseRedirect(reverse('polls:voting'))
+            return HttpResponseRedirect(reverse('polls:index'))
     else:
         return HttpResponseRedirect(reverse('polls:index'))
 
 
+
+#@login_required
 def feedback(request):
     now = timezone.localtime(timezone.now())
     feedback_open_time = now.replace(microsecond=0, second=0,

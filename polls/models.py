@@ -22,6 +22,8 @@ class Restaurant(models.Model):
 
 class Ranking(models.Model):
     restaurant = models.CharField(max_length=30, default="")
+    lwsma_feedback = models.DecimalField(max_digits=6, decimal_places=2,
+            default=0)
 
     def __str__(self):
         return self.restaurant
