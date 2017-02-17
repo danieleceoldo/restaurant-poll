@@ -44,7 +44,7 @@ poll_restaurant_list = sorted(("Aratro", "2 Chef", "Calabianca", "Concorde"))
 
 poll_time_frame = {
     'start': {'hour': 12, 'minute': 00},
-    'end':   {'hour': 12, 'minute': 30}
+    'end':   {'hour': 19, 'minute': 30}
 }
 
 feedback_time_frame = {
@@ -529,11 +529,27 @@ def vote_result_history_prev(request, ballot_id):
 
 
 def vote_result_history_next(request, ballot_id):
+
+    now = timezone.localtime(timezone.now())
+    poll_open_time = now.replace(microsecond=0, second=0,
+        minute=poll_time_frame['start']['minute'],
+        hour=poll_time_frame['start']['hour'])
+    poll_close_time = now.replace(microsecond=0, second=0,
+        minute=poll_time_frame['end']['minute'],
+        hour=poll_time_frame['end']['hour'])
+
     ballot_id_list = []
     for ballot in Ballot.objects.all():
         ballot_id_list.append(ballot.id)
     curr_pos = ballot_id_list.index(int(ballot_id))
-    if curr_pos == len(ballot_id_list) - 1:
+
+    # Calculate last position avoiding security hole during voting
+    if (poll_open_time < now < poll_close_time) and (Ballot.objects.filter(date=now.date()).count() == 1):
+        last_pos = len(ballot_id_list) - 2
+    else:
+        last_pos = len(ballot_id_list) - 1
+
+    if curr_pos == last_pos:
         new_ballot_id = ballot_id
     else:
         new_ballot_id = ballot_id_list[curr_pos  + 1]
@@ -685,3 +701,5 @@ def feedback(request):
                    'feedback_close_time': feedback_close_time}
         return render(request, template_name, context)
 
+
+# end of file
