@@ -296,23 +296,28 @@ class VoteTests(TestCase):
 
 class FeedbackTests(TestCase):
 
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackWait)
     def test_feedback_poll_wait(self):
         response = self.client.get(reverse('polls:feedback'))
         self.assertTemplateUsed(response, 'polls/feedback_waiting.html')
         self.assertContains(response, 'Feedback can only be submitted from')
 
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackOpen)
     def test_feedback_poll_open(self):
         response = self.client.get(reverse('polls:feedback'))
         self.assertTemplateUsed(response, 'polls/feedback_detail.html')
-        self.assertEqual(response.context['error_message'], 'No vote has been cast. Poll is over, no feedback can be submitted.')
+        self.assertEqual(response.context['error_message'],
+                'No vote has been cast. Poll is over, no feedback can be submitted.')
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackOpen)
     def test_feedback_poll_open_2(self):
         ballot = Ballot.objects.create(date=POLL_DATE)
         response = self.client.get(reverse('polls:feedback'))
         self.assertRedirects(response, reverse('polls:feedback_detail'))
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackClosed)
     def test_feedback_poll_closed(self):
@@ -322,7 +327,9 @@ class FeedbackTests(TestCase):
 
 
 
+
 class FeedbackDetailTests(TestCase):
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackWait)
     def test_feedback_detail_wait(self):
@@ -330,11 +337,15 @@ class FeedbackDetailTests(TestCase):
         self.assertTemplateUsed(response, 'polls/feedback_waiting.html')
         self.assertContains(response, 'Feedback can only be submitted from')
 
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackOpen)
     def test_feedback_detail_open(self):
         response = self.client.get(reverse('polls:feedback_detail'))
         self.assertTemplateUsed(response, 'polls/feedback_detail.html')
-        self.assertContains(response, '<p><strong>No vote has been cast. Poll is over, no feedback can be submitted.</strong></p>', html=True)
+        self.assertContains(response,
+                '<p><strong>No vote has been cast. Poll is over, no feedback can be submitted.</strong></p>',
+                html=True)
+ 
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackOpen)
     def test_feedback_detail_open_2(self):
@@ -344,7 +355,9 @@ class FeedbackDetailTests(TestCase):
                 votes=1)
         response = self.client.get(reverse('polls:feedback_detail'))
         self.assertTemplateUsed(response, 'polls/feedback_detail.html')
-        self.assertContains(response, '<p>Please leave a comment (optional):</p>', html=True)
+        self.assertContains(response,
+                '<p>Please leave a comment (optional):</p>', html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_FeedbackClosed)
     def test_feedback_detail_closed(self):
@@ -353,12 +366,16 @@ class FeedbackDetailTests(TestCase):
         self.assertContains(response, 'Feedback can only be submitted from')
 
 
+
+
 class StatisticsTests(TestCase):
 
+ 
     def test_statistics_empty_view(self):
         response = self.client.get(reverse('polls:statistics'))
         self.assertContains(response, '<p>No statistics are available.</p>',
                 html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_maj_vic(self):
@@ -374,6 +391,7 @@ class StatisticsTests(TestCase):
         self.assertEqual(response.context['stat'][0]['win'], 1)
         self.assertEqual(response.context['stat'][0]['majority'], 1)
         self.assertEqual(response.context['stat'][0]['vote'], 1)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_maj_vic_2(self):
@@ -394,6 +412,7 @@ class StatisticsTests(TestCase):
         self.assertEqual(response.context['stat'][0]['majority'], 2)
         self.assertEqual(response.context['stat'][0]['vote'], 2)
 
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_parity_best_feedback(self):
         ballot = Ballot.objects.create(date=POLL_DATE,
@@ -407,16 +426,19 @@ class StatisticsTests(TestCase):
         response = self.client.get(reverse('polls:statistics'))
         self.assertContains(response, '<h1>Statistics</h1>', html=True)
         self.assertContains(response, '<h2>General Statistics</h2>', html=True)
-        self.assertEqual(response.context['stat'][0]['name'], 'test_restaurant_1')
+        self.assertEqual(response.context['stat'][0]['name'],
+                'test_restaurant_1')
         self.assertEqual(response.context['stat'][0]['win'], 1)
         self.assertEqual(response.context['stat'][0]['parity'], 1)
         self.assertEqual(response.context['stat'][0]['feedback'], 1)
         self.assertEqual(response.context['stat'][0]['vote'], 1)
-        self.assertEqual(response.context['stat'][1]['name'], 'test_restaurant_2')
+        self.assertEqual(response.context['stat'][1]['name'],
+                'test_restaurant_2')
         self.assertEqual(response.context['stat'][1]['win'], 0)
         self.assertEqual(response.context['stat'][1]['parity'], 1)
         self.assertEqual(response.context['stat'][1]['feedback'], 0)
         self.assertEqual(response.context['stat'][1]['vote'], 1)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_parity_most_rated(self):
@@ -431,16 +453,19 @@ class StatisticsTests(TestCase):
         response = self.client.get(reverse('polls:statistics'))
         self.assertContains(response, '<h1>Statistics</h1>', html=True)
         self.assertContains(response, '<h2>General Statistics</h2>', html=True)
-        self.assertEqual(response.context['stat'][0]['name'], 'test_restaurant_1')
+        self.assertEqual(response.context['stat'][0]['name'],
+                'test_restaurant_1')
         self.assertEqual(response.context['stat'][0]['win'], 1)
         self.assertEqual(response.context['stat'][0]['parity'], 1)
         self.assertEqual(response.context['stat'][0]['most_rated'], 1)
         self.assertEqual(response.context['stat'][0]['vote'], 1)
-        self.assertEqual(response.context['stat'][1]['name'], 'test_restaurant_2')
+        self.assertEqual(response.context['stat'][1]['name'],
+                'test_restaurant_2')
         self.assertEqual(response.context['stat'][1]['win'], 0)
         self.assertEqual(response.context['stat'][1]['parity'], 1)
         self.assertEqual(response.context['stat'][1]['most_rated'], 0)
         self.assertEqual(response.context['stat'][1]['vote'], 1)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_parity_rand_feedback(self):
@@ -455,16 +480,19 @@ class StatisticsTests(TestCase):
         response = self.client.get(reverse('polls:statistics'))
         self.assertContains(response, '<h1>Statistics</h1>', html=True)
         self.assertContains(response, '<h2>General Statistics</h2>', html=True)
-        self.assertEqual(response.context['stat'][0]['name'], 'test_restaurant_1')
+        self.assertEqual(response.context['stat'][0]['name'],
+                'test_restaurant_1')
         self.assertEqual(response.context['stat'][0]['win'], 1)
         self.assertEqual(response.context['stat'][0]['parity'], 1)
         self.assertEqual(response.context['stat'][0]['rand_feedback'], 1)
         self.assertEqual(response.context['stat'][0]['vote'], 1)
-        self.assertEqual(response.context['stat'][1]['name'], 'test_restaurant_2')
+        self.assertEqual(response.context['stat'][1]['name'],
+                'test_restaurant_2')
         self.assertEqual(response.context['stat'][1]['win'], 0)
         self.assertEqual(response.context['stat'][1]['parity'], 1)
         self.assertEqual(response.context['stat'][1]['rand_feedback'], 0)
         self.assertEqual(response.context['stat'][1]['vote'], 1)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_parity_rand_no_feedback(self):
@@ -479,16 +507,19 @@ class StatisticsTests(TestCase):
         response = self.client.get(reverse('polls:statistics'))
         self.assertContains(response, '<h1>Statistics</h1>', html=True)
         self.assertContains(response, '<h2>General Statistics</h2>', html=True)
-        self.assertEqual(response.context['stat'][0]['name'], 'test_restaurant_1')
+        self.assertEqual(response.context['stat'][0]['name'],
+                'test_restaurant_1')
         self.assertEqual(response.context['stat'][0]['win'], 1)
         self.assertEqual(response.context['stat'][0]['parity'], 1)
         self.assertEqual(response.context['stat'][0]['rand_no_feedback'], 1)
         self.assertEqual(response.context['stat'][0]['vote'], 1)
-        self.assertEqual(response.context['stat'][1]['name'], 'test_restaurant_2')
+        self.assertEqual(response.context['stat'][1]['name'],
+                'test_restaurant_2')
         self.assertEqual(response.context['stat'][1]['win'], 0)
         self.assertEqual(response.context['stat'][1]['parity'], 1)
         self.assertEqual(response.context['stat'][1]['rand_no_feedback'], 0)
         self.assertEqual(response.context['stat'][1]['vote'], 1)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_feedback(self):
@@ -507,6 +538,7 @@ class StatisticsTests(TestCase):
         self.assertEqual(response.context['stat'][0]['vote'], 1)
         self.assertEqual(response.context['stat'][0]['mark'], 1)
         self.assertEqual(response.context['stat'][0]['feedback_num'], 1)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_feedback_2(self):
@@ -531,6 +563,7 @@ class StatisticsTests(TestCase):
         self.assertEqual(response.context['stat'][0]['mark'], 3)
         self.assertEqual(response.context['stat'][0]['feedback_num'], 2)
 
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_statistics_feedback_3(self):
         ballot = Ballot.objects.create(date=POLL_DATE,
@@ -548,13 +581,15 @@ class StatisticsTests(TestCase):
         response = self.client.get(reverse('polls:statistics'))
         self.assertContains(response, '<h1>Statistics</h1>', html=True)
         self.assertContains(response, '<h2>General Statistics</h2>', html=True)
-        self.assertEqual(response.context['stat'][1]['name'], 'test_restaurant_1')
+        self.assertEqual(response.context['stat'][1]['name'],
+                'test_restaurant_1')
         self.assertEqual(response.context['stat'][1]['win'], 1)
         self.assertEqual(response.context['stat'][1]['majority'], 1)
         self.assertEqual(response.context['stat'][1]['vote'], 1)
         self.assertEqual(response.context['stat'][1]['mark'], 1)
         self.assertEqual(response.context['stat'][1]['feedback_num'], 1)
-        self.assertEqual(response.context['stat'][0]['name'], 'test_restaurant_2')
+        self.assertEqual(response.context['stat'][0]['name'],
+                'test_restaurant_2')
         self.assertEqual(response.context['stat'][0]['win'], 1)
         self.assertEqual(response.context['stat'][0]['majority'], 1)
         self.assertEqual(response.context['stat'][0]['vote'], 2)
@@ -565,10 +600,13 @@ class StatisticsTests(TestCase):
 
 class VoteHistoryIndexTests(TestCase):
 
+
     def test_vote_history_index_empty_view(self):
         response = self.client.get(reverse('polls:vote_history_index'))
         self.assertContains(response, '<h1>Vote History Index</h1>', html=True)
-        self.assertContains(response, '<p>No polls are available.</p>', html=True)
+        self.assertContains(response, '<p>No polls are available.</p>',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_vote_history_index_view(self):
@@ -578,13 +616,21 @@ class VoteHistoryIndexTests(TestCase):
                 votes=1)
         response = self.client.get(reverse('polls:vote_history_index'))
         self.assertContains(response, '<h1>Vote History Index</h1>', html=True)
-        self.assertContains(response, '<a href="/polls/1/vote_result_history/">Oct. 26, 2016</a>', html=True)
-        self.assertContains(response, '<td style="padding-right:5em">test_restaurant</td>', html=True)
-        self.assertContains(response, '<td style="padding-right:5em">Majority Vote</td>', html=True)
+        self.assertContains(response,
+                '<a href="/polls/1/vote_result_history/">Oct. 26, 2016</a>',
+                html=True)
+        self.assertContains(response,
+                '<td style="padding-right:5em">test_restaurant</td>',
+                html=True)
+        self.assertContains(response,
+                '<td style="padding-right:5em">Majority Vote</td>',
+                html=True)
+
 
 
 
 class VoteResultHistoryTests(TestCase):
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_vote_result_history_view(self):
@@ -600,11 +646,14 @@ class VoteResultHistoryTests(TestCase):
 
 
 
+
 class FeedbackHistoryTests(TestCase):
+
 
     def test_feedback_history_empty_view(self):
         response = self.client.get(reverse('polls:feedback_history'))
         self.assertContains(response, 'No feedback available.')
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_feedback_history_entry(self):
@@ -618,6 +667,3 @@ class FeedbackHistoryTests(TestCase):
         self.assertContains(response, '<td class="statistics">test_restaurant</td>', html=True)
         self.assertContains(response, '<td class="statistics">1</td>', html=True)
         self.assertContains(response, '<em>test comment</em>', html=True)
-
-
-
