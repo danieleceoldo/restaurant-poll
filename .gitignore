@@ -91,6 +91,7 @@ ENV/
 
 # restaurant-poll project specific files
 *.un~
+*.swp
 db.sqlite3
 polls/static/polls/images/*.png
 polls/static/polls/*.gnuplot

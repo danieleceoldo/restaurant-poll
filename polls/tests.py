@@ -37,25 +37,32 @@ def MockedTimezoneNow_FeedbackClosed():
 
 
 
+
 class IndexTests(TestCase):
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollWait)
     def test_index_poll_wait(self):
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<p>Waiting for poll.</p>', html=True)
+        self.assertContains(response,
+                '<h2>Poll closed. Waiting for poll.</h2>', html=True)
 
-    '''
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
     def test_index_poll_open(self):
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<input type="submit" value="Vote" />', html=True)
-    '''
+        self.assertContains(response, '<h2>Poll open. Turnout: 0 votes</h2>',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_no_cast(self):
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<p>No vote has been cast. Poll is over, no result is available.</p>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over, no result is available: no vote has been cast.</h2>',
+                html=True)
 
+        
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_winner(self):
         ballot = Ballot.objects.create(date=POLL_DATE,
@@ -63,9 +70,14 @@ class IndexTests(TestCase):
         Restaurant.objects.create(ballot=ballot, name='test_restaurant',
                 votes=1)
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<h2>The Winner is: test_restaurant</h2>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over. The Winner is: test_restaurant</h2>',
+                html=True)
         self.assertContains(response, '<h3>Total votes: 1</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Majority Vote</strong></p>', html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Majority Vote</strong></p>',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_total_votes(self):
@@ -76,47 +88,70 @@ class IndexTests(TestCase):
         Restaurant.objects.create(ballot=ballot, name='test_restaurant_2',
                 votes=1)
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<h2>The Winner is: test_restaurant_1</h2>', html=True)
-        self.assertContains(response, '<h3>Total votes: 3</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Majority Vote</strong></p>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over. The Winner is: test_restaurant_1</h2>',
+                html=True)
+        self.assertContains(response, '<h3>Total votes: 3</h3>',
+                html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Majority Vote</strong></p>',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_maj_vic(self):
         ballot = Ballot.objects.create(date=POLL_DATE)
-        Restaurant.objects.create(ballot=ballot, name='test_restaurant',
+        Restaurant.objects.create(ballot=ballot, name='test_restaurant_1',
                 votes=1)
+        Restaurant.objects.create(ballot=ballot, name='test_restaurant_2')
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<h2>The Winner is: test_restaurant</h2>', html=True)
-        self.assertContains(response, '<h3>Total votes: 1</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Majority Vote</strong></p>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over. The Winner is: test_restaurant_1</h2>',
+                html=True)
+        self.assertContains(response, '<h3>Total votes: 1</h3>',
+                html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Majority Vote</strong></p>',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_maj_vic_2(self):
         ballot = Ballot.objects.create(date=POLL_DATE)
-        Restaurant.objects.create(ballot=ballot, name='test_restaurant_1',
-                votes=2)
-        Restaurant.objects.create(ballot=ballot, name='test_restaurant_2',
-                votes=1)
+        Restaurant.objects.create(ballot=ballot,
+                name='test_restaurant_1', votes=2)
+        Restaurant.objects.create(ballot=ballot,
+                name='test_restaurant_2', votes=1)
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<h2>The Winner is: test_restaurant_1</h2>', html=True)
-        self.assertContains(response, '<h3>Total votes: 3</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Majority Vote</strong></p>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over. The Winner is: test_restaurant_1</h2>',
+                html=True)
+        self.assertContains(response,
+                '<h3>Total votes: 3</h3>', html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Majority Vote</strong></p>',
+                html=True)
 
-    '''
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_best_feedb(self):
         ballot = Ballot.objects.create(date=POLL_DATE)
-        Restaurant.objects.create(ballot=ballot, name='test_restaurant_1',
-                votes=1)
-        Restaurant.objects.create(ballot=ballot, name='test_restaurant_2',
-                votes=1)
-        restaurant = Ranking.objects.create(restaurant='test_restaurant_1')
-        Feedback.objects.create(ballot=ballot, restaurant=restaurant, mark=1)
+        Restaurant.objects.create(ballot=ballot,
+                name='test_restaurant_1', votes=1)
+        Restaurant.objects.create(ballot=ballot,
+                name='test_restaurant_2', votes=1)
+        restaurant = Ranking.objects.create(restaurant='test_restaurant_1',
+                lwsma_feedback=1)
         restaurant = Ranking.objects.create(restaurant='test_restaurant_2')
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<h2>The Winner is: test_restaurant_1</h2>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over. The Winner is: test_restaurant_1</h2>',
+                html=True)
         self.assertContains(response, '<h3>Total votes: 2</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Best Feedback</strong></p>', html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Best Feedback</strong></p>',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_best_feedb_2(self):
@@ -125,15 +160,18 @@ class IndexTests(TestCase):
                 votes=1)
         Restaurant.objects.create(ballot=ballot, name='test_restaurant_2',
                 votes=1)
-        restaurant = Ranking.objects.create(restaurant='test_restaurant_1')
-        Feedback.objects.create(ballot=ballot, restaurant=restaurant, mark=2)
-        restaurant = Ranking.objects.create(restaurant='test_restaurant_2')
-        Feedback.objects.create(ballot=ballot, restaurant=restaurant, mark=1)
+        restaurant = Ranking.objects.create(restaurant='test_restaurant_1',
+                lwsma_feedback=2)
+        restaurant = Ranking.objects.create(restaurant='test_restaurant_2',
+                lwsma_feedback=1)
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<h2>The Winner is: test_restaurant_1</h2>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over. The Winner is: test_restaurant_1</h2>',
+                html=True)
         self.assertContains(response, '<h3>Total votes: 2</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Best Feedback</strong></p>', html=True)
-    '''
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Best Feedback</strong></p>',
+                html=True)
   
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
@@ -149,9 +187,13 @@ class IndexTests(TestCase):
         restaurant = Ranking.objects.create(restaurant='test_restaurant_2')
         Feedback.objects.create(ballot=ballot, restaurant=restaurant, mark=2)
         response = self.client.get(reverse('polls:index'))
-        self.assertContains(response, '<h2>The Winner is: test_restaurant_1</h2>', html=True)
+        self.assertContains(response,
+                '<h2>Poll is over. The Winner is: test_restaurant_1</h2>',
+                html=True)
         self.assertContains(response, '<h3>Total votes: 2</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Most Rated</strong></p>', html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Most Rated</strong></p>', html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_rand_no_f(self):
@@ -164,7 +206,10 @@ class IndexTests(TestCase):
         restaurant = Ranking.objects.create(restaurant='test_restaurant_2')
         response = self.client.get(reverse('polls:index'))
         self.assertContains(response, '<h3>Total votes: 2</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Random No Feedback</strong></p>', html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Random No Feedback</strong></p>',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_index_poll_over_win_alg_rand_same_f(self):
@@ -179,54 +224,73 @@ class IndexTests(TestCase):
         Feedback.objects.create(ballot=ballot, restaurant=restaurant, mark=1)
         response = self.client.get(reverse('polls:index'))
         self.assertContains(response, '<h3>Total votes: 2</h3>', html=True)
-        self.assertContains(response, '<p>Victory cause: <strong>Random Same Feedback</strong></p>', html=True)
+        self.assertContains(response,
+                '<p>Victory cause: <strong>Random Same Feedback</strong></p>',
+                html=True)
 
 
 
-'''
-class VotingTests(TestCase):
+
+class VoteDetailTests(TestCase):
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollWait)
     def test_voting_poll_wait(self):
-        response = self.client.get(reverse('polls:voting'))
+        response = self.client.get(reverse('polls:vote_detail'))
         self.assertRedirects(response, reverse('polls:index'))
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
     def test_voting_poll_open(self):
-        response = self.client.get(reverse('polls:voting'))
-        self.assertContains(response, '<h2>Total votes: 0</h2>', html=True)
+        response = self.client.get(reverse('polls:vote_detail'))
+        self.assertRedirects(response, reverse('polls:index'))
+
+
+    @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
+    def test_voting_poll_open(self):
+        ballot = Ballot.objects.create(date=POLL_DATE)
+        response = self.client.get(reverse('polls:vote_detail'))
+        self.assertContains(response, '<input type="submit" value="Vote" />',
+                html=True)
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_voting_poll_closed(self):
-        response = self.client.get(reverse('polls:voting'))
+        response = self.client.get(reverse('polls:vote_detail'))
         self.assertRedirects(response, reverse('polls:index'))
-'''
+
 
 
 
 class VoteTests(TestCase):
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollWait)
     def test_vote_poll_wait(self):
         response = self.client.get(reverse('polls:vote'))
         self.assertRedirects(response, reverse('polls:index'))
 
+
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
     def test_vote_poll_open(self):
         response = self.client.get(reverse('polls:vote'))
         self.assertRedirects(response, reverse('polls:index'))
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollOpen)
     def test_vote_poll_open_2(self):
         ballot = Ballot.objects.create(date=POLL_DATE)
         response = self.client.get(reverse('polls:vote'))
         self.assertTemplateUsed(response, 'polls/vote_detail.html')
-        self.assertEqual(response.context['error_message'], "You didn't select a restaurant.")
+        self.assertEqual(response.context['error_message'],
+                "You didn't select a restaurant.")
+
 
     @patch('polls.views.timezone.now', MockedTimezoneNow_PollClosed)
     def test_vote_poll_closed(self):
         response = self.client.get(reverse('polls:vote'))
         self.assertRedirects(response, reverse('polls:index'))
+
 
 
 
